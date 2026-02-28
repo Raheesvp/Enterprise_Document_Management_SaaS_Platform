@@ -1,0 +1,11 @@
+C:\Projects\ProjectSaas\shared\Shared.Infrastructure\bin\Debug\net8.0\Shared.Infrastructure.deps.json
+C:\Projects\ProjectSaas\shared\Shared.Infrastructure\bin\Debug\net8.0\Shared.Infrastructure.dll
+C:\Projects\ProjectSaas\shared\Shared.Infrastructure\bin\Debug\net8.0\Shared.Infrastructure.pdb
+C:\Projects\ProjectSaas\shared\Shared.Infrastructure\obj\Debug\net8.0\Shared.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Projects\ProjectSaas\shared\Shared.Infrastructure\obj\Debug\net8.0\Shared.Infrastructure.AssemblyInfoInputs.cache
+C:\Projects\ProjectSaas\shared\Shared.Infrastructure\obj\Debug\net8.0\Shared.Infrastructure.AssemblyInfo.cs
+C:\Projects\ProjectSaas\shared\Shared.Infrastructure\obj\Debug\net8.0\Shared.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Projects\ProjectSaas\shared\Shared.Infrastructure\obj\Debug\net8.0\Shared.Infrastructure.dll
+C:\Projects\ProjectSaas\shared\Shared.Infrastructure\obj\Debug\net8.0\refint\Shared.Infrastructure.dll
+C:\Projects\ProjectSaas\shared\Shared.Infrastructure\obj\Debug\net8.0\Shared.Infrastructure.pdb
+C:\Projects\ProjectSaas\shared\Shared.Infrastructure\obj\Debug\net8.0\ref\Shared.Infrastructure.dll

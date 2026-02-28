@@ -1,0 +1,11 @@
+C:\Projects\ProjectSaas\services\workflow-service\WorkflowService.Infrastructure\bin\Debug\net8.0\WorkflowService.Infrastructure.deps.json
+C:\Projects\ProjectSaas\services\workflow-service\WorkflowService.Infrastructure\bin\Debug\net8.0\WorkflowService.Infrastructure.dll
+C:\Projects\ProjectSaas\services\workflow-service\WorkflowService.Infrastructure\bin\Debug\net8.0\WorkflowService.Infrastructure.pdb
+C:\Projects\ProjectSaas\services\workflow-service\WorkflowService.Infrastructure\obj\Debug\net8.0\WorkflowService.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Projects\ProjectSaas\services\workflow-service\WorkflowService.Infrastructure\obj\Debug\net8.0\WorkflowService.Infrastructure.AssemblyInfoInputs.cache
+C:\Projects\ProjectSaas\services\workflow-service\WorkflowService.Infrastructure\obj\Debug\net8.0\WorkflowService.Infrastructure.AssemblyInfo.cs
+C:\Projects\ProjectSaas\services\workflow-service\WorkflowService.Infrastructure\obj\Debug\net8.0\WorkflowService.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Projects\ProjectSaas\services\workflow-service\WorkflowService.Infrastructure\obj\Debug\net8.0\WorkflowService.Infrastructure.dll
+C:\Projects\ProjectSaas\services\workflow-service\WorkflowService.Infrastructure\obj\Debug\net8.0\refint\WorkflowService.Infrastructure.dll
+C:\Projects\ProjectSaas\services\workflow-service\WorkflowService.Infrastructure\obj\Debug\net8.0\WorkflowService.Infrastructure.pdb
+C:\Projects\ProjectSaas\services\workflow-service\WorkflowService.Infrastructure\obj\Debug\net8.0\ref\WorkflowService.Infrastructure.dll

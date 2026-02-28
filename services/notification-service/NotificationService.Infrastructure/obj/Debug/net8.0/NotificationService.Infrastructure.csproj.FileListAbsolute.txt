@@ -1,0 +1,11 @@
+C:\Projects\ProjectSaas\services\notification-service\NotificationService.Infrastructure\bin\Debug\net8.0\NotificationService.Infrastructure.deps.json
+C:\Projects\ProjectSaas\services\notification-service\NotificationService.Infrastructure\bin\Debug\net8.0\NotificationService.Infrastructure.dll
+C:\Projects\ProjectSaas\services\notification-service\NotificationService.Infrastructure\bin\Debug\net8.0\NotificationService.Infrastructure.pdb
+C:\Projects\ProjectSaas\services\notification-service\NotificationService.Infrastructure\obj\Debug\net8.0\NotificationService.Infrastructure.GeneratedMSBuildEditorConfig.editorconfig
+C:\Projects\ProjectSaas\services\notification-service\NotificationService.Infrastructure\obj\Debug\net8.0\NotificationService.Infrastructure.AssemblyInfoInputs.cache
+C:\Projects\ProjectSaas\services\notification-service\NotificationService.Infrastructure\obj\Debug\net8.0\NotificationService.Infrastructure.AssemblyInfo.cs
+C:\Projects\ProjectSaas\services\notification-service\NotificationService.Infrastructure\obj\Debug\net8.0\NotificationService.Infrastructure.csproj.CoreCompileInputs.cache
+C:\Projects\ProjectSaas\services\notification-service\NotificationService.Infrastructure\obj\Debug\net8.0\NotificationService.Infrastructure.dll
+C:\Projects\ProjectSaas\services\notification-service\NotificationService.Infrastructure\obj\Debug\net8.0\refint\NotificationService.Infrastructure.dll
+C:\Projects\ProjectSaas\services\notification-service\NotificationService.Infrastructure\obj\Debug\net8.0\NotificationService.Infrastructure.pdb
+C:\Projects\ProjectSaas\services\notification-service\NotificationService.Infrastructure\obj\Debug\net8.0\ref\NotificationService.Infrastructure.dll

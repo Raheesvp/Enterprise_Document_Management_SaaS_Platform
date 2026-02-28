@@ -1,0 +1,102 @@
+﻿version: '3.9'
+networks:
+  documentsaas-network:
+    driver: bridge
+volumes:
+  postgres_data:
+  mssql_data:
+  rabbitmq_data:
+  redis_data:
+  minio_data:
+  elasticsearch_data:
+  seq_data:
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: documentsaas-postgres
+    environment:
+      POSTGRES_DB: documentdb
+      POSTGRES_USER: saasuser
+      POSTGRES_PASSWORD: SaaS@Postgres2024!
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - documentsaas-network
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: documentsaas-mssql
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "SaaS@MsSql2024!"
+      MSSQL_PID: Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+    networks:
+      - documentsaas-network
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: documentsaas-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: saasuser
+      RABBITMQ_DEFAULT_PASS: SaaS@Rabbit2024!
+      RABBITMQ_DEFAULT_VHOST: documentsaas
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - documentsaas-network
+  redis:
+    image: redis:7.2-alpine
+    container_name: documentsaas-redis
+    command: redis-server --requirepass SaaS@Redis2024!
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - documentsaas-network
+  minio:
+    image: minio/minio:latest
+    container_name: documentsaas-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: saasadmin
+      MINIO_ROOT_PASSWORD: SaaS@Minio2024!
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - documentsaas-network
+  elasticsearch:
+    image: elasticsearch:8.13.0
+    container_name: documentsaas-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - documentsaas-network
+  seq:
+    image: datalust/seq:latest
+    container_name: documentsaas-seq
+    environment:
+      ACCEPT_EULA: "Y"
+    ports:
+      - "5341:5341"
+      - "8081:80"
+    volumes:
+      - seq_data:/data
+    networks:
+      - documentsaas-network

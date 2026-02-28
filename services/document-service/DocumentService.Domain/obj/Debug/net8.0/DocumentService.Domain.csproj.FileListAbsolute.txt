@@ -1,0 +1,15 @@
+C:\Projects\ProjectSaas\services\document-service\DocumentService.Domain\bin\Debug\net8.0\DocumentService.Domain.deps.json
+C:\Projects\ProjectSaas\services\document-service\DocumentService.Domain\bin\Debug\net8.0\DocumentService.Domain.dll
+C:\Projects\ProjectSaas\services\document-service\DocumentService.Domain\bin\Debug\net8.0\DocumentService.Domain.pdb
+C:\Projects\ProjectSaas\services\document-service\DocumentService.Domain\bin\Debug\net8.0\Shared.Domain.dll
+C:\Projects\ProjectSaas\services\document-service\DocumentService.Domain\bin\Debug\net8.0\Shared.Domain.pdb
+C:\Projects\ProjectSaas\services\document-service\DocumentService.Domain\obj\Debug\net8.0\DocumentService.Domain.csproj.AssemblyReference.cache
+C:\Projects\ProjectSaas\services\document-service\DocumentService.Domain\obj\Debug\net8.0\DocumentService.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Projects\ProjectSaas\services\document-service\DocumentService.Domain\obj\Debug\net8.0\DocumentService.Domain.AssemblyInfoInputs.cache
+C:\Projects\ProjectSaas\services\document-service\DocumentService.Domain\obj\Debug\net8.0\DocumentService.Domain.AssemblyInfo.cs
+C:\Projects\ProjectSaas\services\document-service\DocumentService.Domain\obj\Debug\net8.0\DocumentService.Domain.csproj.CoreCompileInputs.cache
+C:\Projects\ProjectSaas\services\document-service\DocumentService.Domain\obj\Debug\net8.0\Document.65538DBA.Up2Date
+C:\Projects\ProjectSaas\services\document-service\DocumentService.Domain\obj\Debug\net8.0\DocumentService.Domain.dll
+C:\Projects\ProjectSaas\services\document-service\DocumentService.Domain\obj\Debug\net8.0\refint\DocumentService.Domain.dll
+C:\Projects\ProjectSaas\services\document-service\DocumentService.Domain\obj\Debug\net8.0\DocumentService.Domain.pdb
+C:\Projects\ProjectSaas\services\document-service\DocumentService.Domain\obj\Debug\net8.0\ref\DocumentService.Domain.dll

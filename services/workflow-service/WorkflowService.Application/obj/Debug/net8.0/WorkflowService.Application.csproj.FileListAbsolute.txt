@@ -1,0 +1,11 @@
+C:\Projects\ProjectSaas\services\workflow-service\WorkflowService.Application\bin\Debug\net8.0\WorkflowService.Application.deps.json
+C:\Projects\ProjectSaas\services\workflow-service\WorkflowService.Application\bin\Debug\net8.0\WorkflowService.Application.dll
+C:\Projects\ProjectSaas\services\workflow-service\WorkflowService.Application\bin\Debug\net8.0\WorkflowService.Application.pdb
+C:\Projects\ProjectSaas\services\workflow-service\WorkflowService.Application\obj\Debug\net8.0\WorkflowService.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Projects\ProjectSaas\services\workflow-service\WorkflowService.Application\obj\Debug\net8.0\WorkflowService.Application.AssemblyInfoInputs.cache
+C:\Projects\ProjectSaas\services\workflow-service\WorkflowService.Application\obj\Debug\net8.0\WorkflowService.Application.AssemblyInfo.cs
+C:\Projects\ProjectSaas\services\workflow-service\WorkflowService.Application\obj\Debug\net8.0\WorkflowService.Application.csproj.CoreCompileInputs.cache
+C:\Projects\ProjectSaas\services\workflow-service\WorkflowService.Application\obj\Debug\net8.0\WorkflowService.Application.dll
+C:\Projects\ProjectSaas\services\workflow-service\WorkflowService.Application\obj\Debug\net8.0\refint\WorkflowService.Application.dll
+C:\Projects\ProjectSaas\services\workflow-service\WorkflowService.Application\obj\Debug\net8.0\WorkflowService.Application.pdb
+C:\Projects\ProjectSaas\services\workflow-service\WorkflowService.Application\obj\Debug\net8.0\ref\WorkflowService.Application.dll
