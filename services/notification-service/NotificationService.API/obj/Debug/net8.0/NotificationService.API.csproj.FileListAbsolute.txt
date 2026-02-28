@@ -33,3 +33,4 @@ C:\Projects\ProjectSaas\services\notification-service\NotificationService.API\ob
 C:\Projects\ProjectSaas\services\notification-service\NotificationService.API\obj\Debug\net8.0\NotificationService.API.pdb
 C:\Projects\ProjectSaas\services\notification-service\NotificationService.API\obj\Debug\net8.0\NotificationService.API.genruntimeconfig.cache
 C:\Projects\ProjectSaas\services\notification-service\NotificationService.API\obj\Debug\net8.0\ref\NotificationService.API.dll
+C:\Projects\ProjectSaaS\services\notification-service\NotificationService.API\obj\Debug\net8.0\NotificationService.API.sourcelink.json

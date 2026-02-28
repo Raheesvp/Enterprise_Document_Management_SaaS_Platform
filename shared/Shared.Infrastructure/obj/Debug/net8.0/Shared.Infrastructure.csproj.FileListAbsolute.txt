@@ -9,3 +9,4 @@ C:\Projects\ProjectSaas\shared\Shared.Infrastructure\obj\Debug\net8.0\Shared.Inf
 C:\Projects\ProjectSaas\shared\Shared.Infrastructure\obj\Debug\net8.0\refint\Shared.Infrastructure.dll
 C:\Projects\ProjectSaas\shared\Shared.Infrastructure\obj\Debug\net8.0\Shared.Infrastructure.pdb
 C:\Projects\ProjectSaas\shared\Shared.Infrastructure\obj\Debug\net8.0\ref\Shared.Infrastructure.dll
+C:\Projects\ProjectSaaS\shared\Shared.Infrastructure\obj\Debug\net8.0\Shared.Infrastructure.sourcelink.json

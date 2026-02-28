@@ -9,3 +9,4 @@ C:\Projects\ProjectSaas\services\workflow-service\WorkflowService.Domain\obj\Deb
 C:\Projects\ProjectSaas\services\workflow-service\WorkflowService.Domain\obj\Debug\net8.0\refint\WorkflowService.Domain.dll
 C:\Projects\ProjectSaas\services\workflow-service\WorkflowService.Domain\obj\Debug\net8.0\WorkflowService.Domain.pdb
 C:\Projects\ProjectSaas\services\workflow-service\WorkflowService.Domain\obj\Debug\net8.0\ref\WorkflowService.Domain.dll
+C:\Projects\ProjectSaaS\services\workflow-service\WorkflowService.Domain\obj\Debug\net8.0\WorkflowService.Domain.sourcelink.json

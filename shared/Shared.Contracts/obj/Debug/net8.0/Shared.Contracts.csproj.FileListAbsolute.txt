@@ -10,3 +10,4 @@ C:\Projects\ProjectSaas\shared\Shared.Contracts\obj\Debug\net8.0\refint\Shared.C
 C:\Projects\ProjectSaas\shared\Shared.Contracts\obj\Debug\net8.0\Shared.Contracts.pdb
 C:\Projects\ProjectSaas\shared\Shared.Contracts\obj\Debug\net8.0\ref\Shared.Contracts.dll
 C:\Projects\ProjectSaas\shared\Shared.Contracts\obj\Debug\net8.0\Shared.Contracts.csproj.AssemblyReference.cache
+C:\Projects\ProjectSaaS\shared\Shared.Contracts\obj\Debug\net8.0\Shared.Contracts.sourcelink.json

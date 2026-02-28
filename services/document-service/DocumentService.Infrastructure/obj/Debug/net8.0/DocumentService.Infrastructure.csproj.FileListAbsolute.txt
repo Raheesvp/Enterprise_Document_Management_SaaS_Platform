@@ -21,3 +21,4 @@ C:\Projects\ProjectSaas\services\document-service\DocumentService.Infrastructure
 C:\Projects\ProjectSaas\services\document-service\DocumentService.Infrastructure\obj\Debug\net8.0\refint\DocumentService.Infrastructure.dll
 C:\Projects\ProjectSaas\services\document-service\DocumentService.Infrastructure\obj\Debug\net8.0\DocumentService.Infrastructure.pdb
 C:\Projects\ProjectSaas\services\document-service\DocumentService.Infrastructure\obj\Debug\net8.0\ref\DocumentService.Infrastructure.dll
+C:\Projects\ProjectSaaS\services\document-service\DocumentService.Infrastructure\obj\Debug\net8.0\DocumentService.Infrastructure.sourcelink.json

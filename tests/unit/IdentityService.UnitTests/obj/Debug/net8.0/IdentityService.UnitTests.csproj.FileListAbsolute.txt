@@ -97,3 +97,4 @@ C:\Projects\ProjectSaas\tests\unit\IdentityService.UnitTests\obj\Debug\net8.0\re
 C:\Projects\ProjectSaas\tests\unit\IdentityService.UnitTests\obj\Debug\net8.0\IdentityService.UnitTests.pdb
 C:\Projects\ProjectSaas\tests\unit\IdentityService.UnitTests\obj\Debug\net8.0\IdentityService.UnitTests.genruntimeconfig.cache
 C:\Projects\ProjectSaas\tests\unit\IdentityService.UnitTests\obj\Debug\net8.0\ref\IdentityService.UnitTests.dll
+C:\Projects\ProjectSaaS\tests\unit\IdentityService.UnitTests\obj\Debug\net8.0\IdentityService.UnitTests.sourcelink.json

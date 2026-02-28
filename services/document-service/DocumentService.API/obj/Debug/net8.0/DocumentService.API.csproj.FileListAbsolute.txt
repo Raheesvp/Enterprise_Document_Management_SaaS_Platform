@@ -49,3 +49,4 @@ C:\Projects\ProjectSaas\services\document-service\DocumentService.API\bin\Debug\
 C:\Projects\ProjectSaas\services\document-service\DocumentService.API\bin\Debug\net8.0\MassTransit.Abstractions.dll
 C:\Projects\ProjectSaas\services\document-service\DocumentService.API\bin\Debug\net8.0\MediatR.dll
 C:\Projects\ProjectSaas\services\document-service\DocumentService.API\bin\Debug\net8.0\MediatR.Contracts.dll
+C:\Projects\ProjectSaaS\services\document-service\DocumentService.API\obj\Debug\net8.0\DocumentService.API.sourcelink.json

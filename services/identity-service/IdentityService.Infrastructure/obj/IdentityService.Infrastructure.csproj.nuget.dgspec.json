@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Projects\\ProjectSaas\\services\\identity-service\\IdentityService.Infrastructure\\IdentityService.Infrastructure.csproj": {}
+    "C:\\Projects\\ProjectSaaS\\services\\identity-service\\IdentityService.Infrastructure\\IdentityService.Infrastructure.csproj": {}
   },
   "projects": {
-    "C:\\Projects\\ProjectSaas\\services\\identity-service\\IdentityService.Application\\IdentityService.Application.csproj": {
+    "C:\\Projects\\ProjectSaaS\\services\\identity-service\\IdentityService.Application\\IdentityService.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Projects\\ProjectSaas\\services\\identity-service\\IdentityService.Application\\IdentityService.Application.csproj",
+        "projectUniqueName": "C:\\Projects\\ProjectSaaS\\services\\identity-service\\IdentityService.Application\\IdentityService.Application.csproj",
         "projectName": "IdentityService.Application",
-        "projectPath": "C:\\Projects\\ProjectSaas\\services\\identity-service\\IdentityService.Application\\IdentityService.Application.csproj",
+        "projectPath": "C:\\Projects\\ProjectSaaS\\services\\identity-service\\IdentityService.Application\\IdentityService.Application.csproj",
         "packagesPath": "C:\\Users\\DELL\\.nuget\\packages\\",
-        "outputPath": "C:\\Projects\\ProjectSaas\\services\\identity-service\\IdentityService.Application\\obj\\",
+        "outputPath": "C:\\Projects\\ProjectSaaS\\services\\identity-service\\IdentityService.Application\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -32,11 +32,11 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Projects\\ProjectSaas\\services\\identity-service\\IdentityService.Domain\\IdentityService.Domain.csproj": {
-                "projectPath": "C:\\Projects\\ProjectSaas\\services\\identity-service\\IdentityService.Domain\\IdentityService.Domain.csproj"
+              "C:\\Projects\\ProjectSaaS\\services\\identity-service\\IdentityService.Domain\\IdentityService.Domain.csproj": {
+                "projectPath": "C:\\Projects\\ProjectSaaS\\services\\identity-service\\IdentityService.Domain\\IdentityService.Domain.csproj"
               },
-              "C:\\Projects\\ProjectSaas\\shared\\Shared.Contracts\\Shared.Contracts.csproj": {
-                "projectPath": "C:\\Projects\\ProjectSaas\\shared\\Shared.Contracts\\Shared.Contracts.csproj"
+              "C:\\Projects\\ProjectSaaS\\shared\\Shared.Contracts\\Shared.Contracts.csproj": {
+                "projectPath": "C:\\Projects\\ProjectSaaS\\shared\\Shared.Contracts\\Shared.Contracts.csproj"
               }
             }
           }
@@ -56,6 +56,24 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
+          "dependencies": {
+            "AutoMapper": {
+              "target": "Package",
+              "version": "[13.0.1, )"
+            },
+            "FluentValidation": {
+              "target": "Package",
+              "version": "[11.11.0, )"
+            },
+            "FluentValidation.DependencyInjectionExtensions": {
+              "target": "Package",
+              "version": "[11.11.0, )"
+            },
+            "MediatR": {
+              "target": "Package",
+              "version": "[12.4.1, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
@@ -76,14 +94,14 @@
         }
       }
     },
-    "C:\\Projects\\ProjectSaas\\services\\identity-service\\IdentityService.Domain\\IdentityService.Domain.csproj": {
+    "C:\\Projects\\ProjectSaaS\\services\\identity-service\\IdentityService.Domain\\IdentityService.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Projects\\ProjectSaas\\services\\identity-service\\IdentityService.Domain\\IdentityService.Domain.csproj",
+        "projectUniqueName": "C:\\Projects\\ProjectSaaS\\services\\identity-service\\IdentityService.Domain\\IdentityService.Domain.csproj",
         "projectName": "IdentityService.Domain",
-        "projectPath": "C:\\Projects\\ProjectSaas\\services\\identity-service\\IdentityService.Domain\\IdentityService.Domain.csproj",
+        "projectPath": "C:\\Projects\\ProjectSaaS\\services\\identity-service\\IdentityService.Domain\\IdentityService.Domain.csproj",
         "packagesPath": "C:\\Users\\DELL\\.nuget\\packages\\",
-        "outputPath": "C:\\Projects\\ProjectSaas\\services\\identity-service\\IdentityService.Domain\\obj\\",
+        "outputPath": "C:\\Projects\\ProjectSaaS\\services\\identity-service\\IdentityService.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -104,8 +122,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Projects\\ProjectSaas\\shared\\Shared.Domain\\Shared.Domain.csproj": {
-                "projectPath": "C:\\Projects\\ProjectSaas\\shared\\Shared.Domain\\Shared.Domain.csproj"
+              "C:\\Projects\\ProjectSaaS\\shared\\Shared.Domain\\Shared.Domain.csproj": {
+                "projectPath": "C:\\Projects\\ProjectSaaS\\shared\\Shared.Domain\\Shared.Domain.csproj"
               }
             }
           }
@@ -145,14 +163,14 @@
         }
       }
     },
-    "C:\\Projects\\ProjectSaas\\services\\identity-service\\IdentityService.Infrastructure\\IdentityService.Infrastructure.csproj": {
+    "C:\\Projects\\ProjectSaaS\\services\\identity-service\\IdentityService.Infrastructure\\IdentityService.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Projects\\ProjectSaas\\services\\identity-service\\IdentityService.Infrastructure\\IdentityService.Infrastructure.csproj",
+        "projectUniqueName": "C:\\Projects\\ProjectSaaS\\services\\identity-service\\IdentityService.Infrastructure\\IdentityService.Infrastructure.csproj",
         "projectName": "IdentityService.Infrastructure",
-        "projectPath": "C:\\Projects\\ProjectSaas\\services\\identity-service\\IdentityService.Infrastructure\\IdentityService.Infrastructure.csproj",
+        "projectPath": "C:\\Projects\\ProjectSaaS\\services\\identity-service\\IdentityService.Infrastructure\\IdentityService.Infrastructure.csproj",
         "packagesPath": "C:\\Users\\DELL\\.nuget\\packages\\",
-        "outputPath": "C:\\Projects\\ProjectSaas\\services\\identity-service\\IdentityService.Infrastructure\\obj\\",
+        "outputPath": "C:\\Projects\\ProjectSaaS\\services\\identity-service\\IdentityService.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -173,14 +191,14 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Projects\\ProjectSaas\\services\\identity-service\\IdentityService.Application\\IdentityService.Application.csproj": {
-                "projectPath": "C:\\Projects\\ProjectSaas\\services\\identity-service\\IdentityService.Application\\IdentityService.Application.csproj"
+              "C:\\Projects\\ProjectSaaS\\services\\identity-service\\IdentityService.Application\\IdentityService.Application.csproj": {
+                "projectPath": "C:\\Projects\\ProjectSaaS\\services\\identity-service\\IdentityService.Application\\IdentityService.Application.csproj"
               },
-              "C:\\Projects\\ProjectSaas\\services\\identity-service\\IdentityService.Domain\\IdentityService.Domain.csproj": {
-                "projectPath": "C:\\Projects\\ProjectSaas\\services\\identity-service\\IdentityService.Domain\\IdentityService.Domain.csproj"
+              "C:\\Projects\\ProjectSaaS\\services\\identity-service\\IdentityService.Domain\\IdentityService.Domain.csproj": {
+                "projectPath": "C:\\Projects\\ProjectSaaS\\services\\identity-service\\IdentityService.Domain\\IdentityService.Domain.csproj"
               },
-              "C:\\Projects\\ProjectSaas\\shared\\Shared.Infrastructure\\Shared.Infrastructure.csproj": {
-                "projectPath": "C:\\Projects\\ProjectSaas\\shared\\Shared.Infrastructure\\Shared.Infrastructure.csproj"
+              "C:\\Projects\\ProjectSaaS\\shared\\Shared.Infrastructure\\Shared.Infrastructure.csproj": {
+                "projectPath": "C:\\Projects\\ProjectSaaS\\shared\\Shared.Infrastructure\\Shared.Infrastructure.csproj"
               }
             }
           }
@@ -220,14 +238,14 @@
         }
       }
     },
-    "C:\\Projects\\ProjectSaas\\shared\\Shared.Contracts\\Shared.Contracts.csproj": {
+    "C:\\Projects\\ProjectSaaS\\shared\\Shared.Contracts\\Shared.Contracts.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Projects\\ProjectSaas\\shared\\Shared.Contracts\\Shared.Contracts.csproj",
+        "projectUniqueName": "C:\\Projects\\ProjectSaaS\\shared\\Shared.Contracts\\Shared.Contracts.csproj",
         "projectName": "Shared.Contracts",
-        "projectPath": "C:\\Projects\\ProjectSaas\\shared\\Shared.Contracts\\Shared.Contracts.csproj",
+        "projectPath": "C:\\Projects\\ProjectSaaS\\shared\\Shared.Contracts\\Shared.Contracts.csproj",
         "packagesPath": "C:\\Users\\DELL\\.nuget\\packages\\",
-        "outputPath": "C:\\Projects\\ProjectSaas\\shared\\Shared.Contracts\\obj\\",
+        "outputPath": "C:\\Projects\\ProjectSaaS\\shared\\Shared.Contracts\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -291,14 +309,14 @@
         }
       }
     },
-    "C:\\Projects\\ProjectSaas\\shared\\Shared.Domain\\Shared.Domain.csproj": {
+    "C:\\Projects\\ProjectSaaS\\shared\\Shared.Domain\\Shared.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Projects\\ProjectSaas\\shared\\Shared.Domain\\Shared.Domain.csproj",
+        "projectUniqueName": "C:\\Projects\\ProjectSaaS\\shared\\Shared.Domain\\Shared.Domain.csproj",
         "projectName": "Shared.Domain",
-        "projectPath": "C:\\Projects\\ProjectSaas\\shared\\Shared.Domain\\Shared.Domain.csproj",
+        "projectPath": "C:\\Projects\\ProjectSaaS\\shared\\Shared.Domain\\Shared.Domain.csproj",
         "packagesPath": "C:\\Users\\DELL\\.nuget\\packages\\",
-        "outputPath": "C:\\Projects\\ProjectSaas\\shared\\Shared.Domain\\obj\\",
+        "outputPath": "C:\\Projects\\ProjectSaaS\\shared\\Shared.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -362,14 +380,14 @@
         }
       }
     },
-    "C:\\Projects\\ProjectSaas\\shared\\Shared.Infrastructure\\Shared.Infrastructure.csproj": {
+    "C:\\Projects\\ProjectSaaS\\shared\\Shared.Infrastructure\\Shared.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Projects\\ProjectSaas\\shared\\Shared.Infrastructure\\Shared.Infrastructure.csproj",
+        "projectUniqueName": "C:\\Projects\\ProjectSaaS\\shared\\Shared.Infrastructure\\Shared.Infrastructure.csproj",
         "projectName": "Shared.Infrastructure",
-        "projectPath": "C:\\Projects\\ProjectSaas\\shared\\Shared.Infrastructure\\Shared.Infrastructure.csproj",
+        "projectPath": "C:\\Projects\\ProjectSaaS\\shared\\Shared.Infrastructure\\Shared.Infrastructure.csproj",
         "packagesPath": "C:\\Users\\DELL\\.nuget\\packages\\",
-        "outputPath": "C:\\Projects\\ProjectSaas\\shared\\Shared.Infrastructure\\obj\\",
+        "outputPath": "C:\\Projects\\ProjectSaaS\\shared\\Shared.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

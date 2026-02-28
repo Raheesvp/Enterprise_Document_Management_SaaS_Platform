@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "VBOT3af4Q3U=",
+  "dgSpecHash": "NGVKuFttpNA=",
   "success": true,
-  "projectFilePath": "C:\\Projects\\ProjectSaas\\services\\identity-service\\IdentityService.Domain\\IdentityService.Domain.csproj",
+  "projectFilePath": "C:\\Projects\\ProjectSaaS\\services\\identity-service\\IdentityService.Domain\\IdentityService.Domain.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\DELL\\.nuget\\packages\\mediatr\\12.4.1\\mediatr.12.4.1.nupkg.sha512",
     "C:\\Users\\DELL\\.nuget\\packages\\mediatr.contracts\\2.0.1\\mediatr.contracts.2.0.1.nupkg.sha512",

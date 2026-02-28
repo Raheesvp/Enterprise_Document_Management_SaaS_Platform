@@ -10,3 +10,4 @@ C:\Projects\ProjectSaas\shared\Shared.Domain\obj\Debug\net8.0\refint\Shared.Doma
 C:\Projects\ProjectSaas\shared\Shared.Domain\obj\Debug\net8.0\Shared.Domain.pdb
 C:\Projects\ProjectSaas\shared\Shared.Domain\obj\Debug\net8.0\ref\Shared.Domain.dll
 C:\Projects\ProjectSaas\shared\Shared.Domain\obj\Debug\net8.0\Shared.Domain.csproj.AssemblyReference.cache
+C:\Projects\ProjectSaaS\shared\Shared.Domain\obj\Debug\net8.0\Shared.Domain.sourcelink.json

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "BrPyYg9V+co=",
+  "dgSpecHash": "pjldOq1ylm4=",
   "success": true,
-  "projectFilePath": "C:\\Projects\\ProjectSaas\\services\\notification-service\\NotificationService.Domain\\NotificationService.Domain.csproj",
+  "projectFilePath": "C:\\Projects\\ProjectSaaS\\services\\notification-service\\NotificationService.Domain\\NotificationService.Domain.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Projects\\ProjectSaas\\services\\notification-service\\NotificationService.Infrastructure\\NotificationService.Infrastructure.csproj": {}
+    "C:\\Projects\\ProjectSaaS\\services\\notification-service\\NotificationService.Infrastructure\\NotificationService.Infrastructure.csproj": {}
   },
   "projects": {
-    "C:\\Projects\\ProjectSaas\\services\\notification-service\\NotificationService.Infrastructure\\NotificationService.Infrastructure.csproj": {
+    "C:\\Projects\\ProjectSaaS\\services\\notification-service\\NotificationService.Infrastructure\\NotificationService.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Projects\\ProjectSaas\\services\\notification-service\\NotificationService.Infrastructure\\NotificationService.Infrastructure.csproj",
+        "projectUniqueName": "C:\\Projects\\ProjectSaaS\\services\\notification-service\\NotificationService.Infrastructure\\NotificationService.Infrastructure.csproj",
         "projectName": "NotificationService.Infrastructure",
-        "projectPath": "C:\\Projects\\ProjectSaas\\services\\notification-service\\NotificationService.Infrastructure\\NotificationService.Infrastructure.csproj",
+        "projectPath": "C:\\Projects\\ProjectSaaS\\services\\notification-service\\NotificationService.Infrastructure\\NotificationService.Infrastructure.csproj",
         "packagesPath": "C:\\Users\\DELL\\.nuget\\packages\\",
-        "outputPath": "C:\\Projects\\ProjectSaas\\services\\notification-service\\NotificationService.Infrastructure\\obj\\",
+        "outputPath": "C:\\Projects\\ProjectSaaS\\services\\notification-service\\NotificationService.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

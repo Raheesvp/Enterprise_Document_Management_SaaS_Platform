@@ -97,3 +97,4 @@ C:\Projects\ProjectSaas\tests\integration\Integration.Tests\obj\Debug\net8.0\ref
 C:\Projects\ProjectSaas\tests\integration\Integration.Tests\obj\Debug\net8.0\Integration.Tests.pdb
 C:\Projects\ProjectSaas\tests\integration\Integration.Tests\obj\Debug\net8.0\Integration.Tests.genruntimeconfig.cache
 C:\Projects\ProjectSaas\tests\integration\Integration.Tests\obj\Debug\net8.0\ref\Integration.Tests.dll
+C:\Projects\ProjectSaaS\tests\integration\Integration.Tests\obj\Debug\net8.0\Integration.Tests.sourcelink.json

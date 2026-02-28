@@ -97,3 +97,4 @@ C:\Projects\ProjectSaas\tests\unit\DocumentService.UnitTests\obj\Debug\net8.0\re
 C:\Projects\ProjectSaas\tests\unit\DocumentService.UnitTests\obj\Debug\net8.0\DocumentService.UnitTests.pdb
 C:\Projects\ProjectSaas\tests\unit\DocumentService.UnitTests\obj\Debug\net8.0\DocumentService.UnitTests.genruntimeconfig.cache
 C:\Projects\ProjectSaas\tests\unit\DocumentService.UnitTests\obj\Debug\net8.0\ref\DocumentService.UnitTests.dll
+C:\Projects\ProjectSaaS\tests\unit\DocumentService.UnitTests\obj\Debug\net8.0\DocumentService.UnitTests.sourcelink.json

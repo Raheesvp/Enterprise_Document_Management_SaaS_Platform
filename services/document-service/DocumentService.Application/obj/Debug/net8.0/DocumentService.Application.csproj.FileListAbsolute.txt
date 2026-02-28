@@ -17,3 +17,4 @@ C:\Projects\ProjectSaas\services\document-service\DocumentService.Application\ob
 C:\Projects\ProjectSaas\services\document-service\DocumentService.Application\obj\Debug\net8.0\refint\DocumentService.Application.dll
 C:\Projects\ProjectSaas\services\document-service\DocumentService.Application\obj\Debug\net8.0\DocumentService.Application.pdb
 C:\Projects\ProjectSaas\services\document-service\DocumentService.Application\obj\Debug\net8.0\ref\DocumentService.Application.dll
+C:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\obj\Debug\net8.0\DocumentService.Application.sourcelink.json

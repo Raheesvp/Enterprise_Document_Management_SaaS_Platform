@@ -55,3 +55,4 @@ C:\Projects\ProjectSaas\gateway\Gateway.API\bin\Debug\net8.0\Serilog.Sinks.File.
 C:\Projects\ProjectSaas\gateway\Gateway.API\bin\Debug\net8.0\System.IdentityModel.Tokens.Jwt.dll
 C:\Projects\ProjectSaas\gateway\Gateway.API\bin\Debug\net8.0\System.IO.Hashing.dll
 C:\Projects\ProjectSaas\gateway\Gateway.API\bin\Debug\net8.0\Yarp.ReverseProxy.dll
+C:\Projects\ProjectSaaS\gateway\Gateway.API\obj\Debug\net8.0\Gateway.API.sourcelink.json

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "XmIfQUyE0sc=",
+  "dgSpecHash": "fonZpj0MJGU=",
   "success": true,
-  "projectFilePath": "C:\\Projects\\ProjectSaas\\services\\document-service\\DocumentService.Application\\DocumentService.Application.csproj",
+  "projectFilePath": "C:\\Projects\\ProjectSaaS\\services\\document-service\\DocumentService.Application\\DocumentService.Application.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\DELL\\.nuget\\packages\\masstransit\\8.3.6\\masstransit.8.3.6.nupkg.sha512",
     "C:\\Users\\DELL\\.nuget\\packages\\masstransit.abstractions\\8.3.6\\masstransit.abstractions.8.3.6.nupkg.sha512",

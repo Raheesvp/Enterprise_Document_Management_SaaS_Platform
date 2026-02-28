@@ -49,3 +49,7 @@ C:\Projects\ProjectSaas\services\identity-service\IdentityService.API\bin\Debug\
 C:\Projects\ProjectSaas\services\identity-service\IdentityService.API\bin\Debug\net8.0\MassTransit.Abstractions.dll
 C:\Projects\ProjectSaas\services\identity-service\IdentityService.API\bin\Debug\net8.0\MediatR.dll
 C:\Projects\ProjectSaas\services\identity-service\IdentityService.API\bin\Debug\net8.0\MediatR.Contracts.dll
+C:\Projects\ProjectSaaS\services\identity-service\IdentityService.API\bin\Debug\net8.0\AutoMapper.dll
+C:\Projects\ProjectSaaS\services\identity-service\IdentityService.API\bin\Debug\net8.0\FluentValidation.dll
+C:\Projects\ProjectSaaS\services\identity-service\IdentityService.API\bin\Debug\net8.0\FluentValidation.DependencyInjectionExtensions.dll
+C:\Projects\ProjectSaaS\services\identity-service\IdentityService.API\obj\Debug\net8.0\IdentityService.API.sourcelink.json

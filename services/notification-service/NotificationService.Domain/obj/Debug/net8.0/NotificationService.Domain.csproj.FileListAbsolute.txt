@@ -9,3 +9,4 @@ C:\Projects\ProjectSaas\services\notification-service\NotificationService.Domain
 C:\Projects\ProjectSaas\services\notification-service\NotificationService.Domain\obj\Debug\net8.0\refint\NotificationService.Domain.dll
 C:\Projects\ProjectSaas\services\notification-service\NotificationService.Domain\obj\Debug\net8.0\NotificationService.Domain.pdb
 C:\Projects\ProjectSaas\services\notification-service\NotificationService.Domain\obj\Debug\net8.0\ref\NotificationService.Domain.dll
+C:\Projects\ProjectSaaS\services\notification-service\NotificationService.Domain\obj\Debug\net8.0\NotificationService.Domain.sourcelink.json

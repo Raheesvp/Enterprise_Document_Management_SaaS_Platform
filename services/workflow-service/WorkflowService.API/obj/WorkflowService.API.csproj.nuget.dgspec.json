@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Projects\\ProjectSaas\\services\\workflow-service\\WorkflowService.API\\WorkflowService.API.csproj": {}
+    "C:\\Projects\\ProjectSaaS\\services\\workflow-service\\WorkflowService.API\\WorkflowService.API.csproj": {}
   },
   "projects": {
-    "C:\\Projects\\ProjectSaas\\services\\workflow-service\\WorkflowService.API\\WorkflowService.API.csproj": {
+    "C:\\Projects\\ProjectSaaS\\services\\workflow-service\\WorkflowService.API\\WorkflowService.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Projects\\ProjectSaas\\services\\workflow-service\\WorkflowService.API\\WorkflowService.API.csproj",
+        "projectUniqueName": "C:\\Projects\\ProjectSaaS\\services\\workflow-service\\WorkflowService.API\\WorkflowService.API.csproj",
         "projectName": "WorkflowService.API",
-        "projectPath": "C:\\Projects\\ProjectSaas\\services\\workflow-service\\WorkflowService.API\\WorkflowService.API.csproj",
+        "projectPath": "C:\\Projects\\ProjectSaaS\\services\\workflow-service\\WorkflowService.API\\WorkflowService.API.csproj",
         "packagesPath": "C:\\Users\\DELL\\.nuget\\packages\\",
-        "outputPath": "C:\\Projects\\ProjectSaas\\services\\workflow-service\\WorkflowService.API\\obj\\",
+        "outputPath": "C:\\Projects\\ProjectSaaS\\services\\workflow-service\\WorkflowService.API\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

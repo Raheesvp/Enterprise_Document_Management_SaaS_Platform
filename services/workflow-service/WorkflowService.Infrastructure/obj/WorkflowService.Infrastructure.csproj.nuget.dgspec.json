@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Projects\\ProjectSaas\\services\\workflow-service\\WorkflowService.Infrastructure\\WorkflowService.Infrastructure.csproj": {}
+    "C:\\Projects\\ProjectSaaS\\services\\workflow-service\\WorkflowService.Infrastructure\\WorkflowService.Infrastructure.csproj": {}
   },
   "projects": {
-    "C:\\Projects\\ProjectSaas\\services\\workflow-service\\WorkflowService.Infrastructure\\WorkflowService.Infrastructure.csproj": {
+    "C:\\Projects\\ProjectSaaS\\services\\workflow-service\\WorkflowService.Infrastructure\\WorkflowService.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Projects\\ProjectSaas\\services\\workflow-service\\WorkflowService.Infrastructure\\WorkflowService.Infrastructure.csproj",
+        "projectUniqueName": "C:\\Projects\\ProjectSaaS\\services\\workflow-service\\WorkflowService.Infrastructure\\WorkflowService.Infrastructure.csproj",
         "projectName": "WorkflowService.Infrastructure",
-        "projectPath": "C:\\Projects\\ProjectSaas\\services\\workflow-service\\WorkflowService.Infrastructure\\WorkflowService.Infrastructure.csproj",
+        "projectPath": "C:\\Projects\\ProjectSaaS\\services\\workflow-service\\WorkflowService.Infrastructure\\WorkflowService.Infrastructure.csproj",
         "packagesPath": "C:\\Users\\DELL\\.nuget\\packages\\",
-        "outputPath": "C:\\Projects\\ProjectSaas\\services\\workflow-service\\WorkflowService.Infrastructure\\obj\\",
+        "outputPath": "C:\\Projects\\ProjectSaaS\\services\\workflow-service\\WorkflowService.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

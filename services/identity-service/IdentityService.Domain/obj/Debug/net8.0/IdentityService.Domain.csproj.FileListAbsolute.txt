@@ -13,3 +13,4 @@ C:\Projects\ProjectSaas\services\identity-service\IdentityService.Domain\obj\Deb
 C:\Projects\ProjectSaas\services\identity-service\IdentityService.Domain\obj\Debug\net8.0\refint\IdentityService.Domain.dll
 C:\Projects\ProjectSaas\services\identity-service\IdentityService.Domain\obj\Debug\net8.0\IdentityService.Domain.pdb
 C:\Projects\ProjectSaas\services\identity-service\IdentityService.Domain\obj\Debug\net8.0\ref\IdentityService.Domain.dll
+C:\Projects\ProjectSaaS\services\identity-service\IdentityService.Domain\obj\Debug\net8.0\IdentityService.Domain.sourcelink.json

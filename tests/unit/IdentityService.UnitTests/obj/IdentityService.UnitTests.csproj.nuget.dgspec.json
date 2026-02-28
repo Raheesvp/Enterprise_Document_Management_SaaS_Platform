@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Projects\\ProjectSaas\\tests\\unit\\IdentityService.UnitTests\\IdentityService.UnitTests.csproj": {}
+    "C:\\Projects\\ProjectSaaS\\tests\\unit\\IdentityService.UnitTests\\IdentityService.UnitTests.csproj": {}
   },
   "projects": {
-    "C:\\Projects\\ProjectSaas\\tests\\unit\\IdentityService.UnitTests\\IdentityService.UnitTests.csproj": {
+    "C:\\Projects\\ProjectSaaS\\tests\\unit\\IdentityService.UnitTests\\IdentityService.UnitTests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Projects\\ProjectSaas\\tests\\unit\\IdentityService.UnitTests\\IdentityService.UnitTests.csproj",
+        "projectUniqueName": "C:\\Projects\\ProjectSaaS\\tests\\unit\\IdentityService.UnitTests\\IdentityService.UnitTests.csproj",
         "projectName": "IdentityService.UnitTests",
-        "projectPath": "C:\\Projects\\ProjectSaas\\tests\\unit\\IdentityService.UnitTests\\IdentityService.UnitTests.csproj",
+        "projectPath": "C:\\Projects\\ProjectSaaS\\tests\\unit\\IdentityService.UnitTests\\IdentityService.UnitTests.csproj",
         "packagesPath": "C:\\Users\\DELL\\.nuget\\packages\\",
-        "outputPath": "C:\\Projects\\ProjectSaas\\tests\\unit\\IdentityService.UnitTests\\obj\\",
+        "outputPath": "C:\\Projects\\ProjectSaaS\\tests\\unit\\IdentityService.UnitTests\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
