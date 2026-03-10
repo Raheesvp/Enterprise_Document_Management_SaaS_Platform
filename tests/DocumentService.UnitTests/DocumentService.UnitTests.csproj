@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\services\document-service\DocumentService.Domain\DocumentService.Domain.csproj" />
+    <ProjectReference Include="..\..\services\document-service\DocumentService.Application\DocumentService.Application.csproj" />
   </ItemGroup>
 
 </Project>

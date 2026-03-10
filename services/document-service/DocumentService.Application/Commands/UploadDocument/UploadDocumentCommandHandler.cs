@@ -36,7 +36,19 @@ public sealed class UploadDocumentCommandHandler
             title       = DocumentTitle.Create(command.Title);
             fileSize    = FileSize.FromBytes(command.FileSizeBytes);
             contentType = ContentType.Create(command.MimeType);
+
+
+
+            if (contentType.DocumentType == Domain.Enums.DocumentType.Other)
+    {
+        return Result.Failure<DocumentDto>(
+            new Error("Document.UnsupportedType", $"The file type '{command.MimeType}' is not allowed."));
+    }
+
         }
+
+        
+
         catch (ArgumentException ex)
         {
             return Result.Failure<DocumentDto>(
