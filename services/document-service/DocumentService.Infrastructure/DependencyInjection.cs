@@ -2,6 +2,7 @@ using DocumentService.Application.Interfaces;
 using DocumentService.Domain.Repositories;
 using DocumentService.Infrastructure.Persistence;
 using DocumentService.Infrastructure.Persistence.Interceptors;
+using DocumentService.Infrastructure.Repositories;
 using DocumentService.Infrastructure.Services;
 using DocumentService.Infrastructure.Stubs;
 using Microsoft.EntityFrameworkCore;
@@ -17,13 +18,17 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+        // HTTP context accessor
         services.AddHttpContextAccessor();
 
+        // Tenant context — scoped per request
         services.AddScoped<ITenantContext, HttpTenantContext>();
 
+        // Interceptors
         services.AddScoped<DomainEventInterceptor>();
         services.AddScoped<TenantDbCommandInterceptor>();
 
+        // PostgreSQL DbContext
         services.AddDbContext<DocumentDbContext>(
             (serviceProvider, options) =>
             {
@@ -49,10 +54,13 @@ public static class DependencyInjection
                         tenantInterceptor);
             });
 
+        // Real repositories — replacing stubs from Day 15
         services.AddScoped<IDocumentRepository,
-            StubDocumentRepository>();
+            DocumentRepository>();
         services.AddScoped<IDocumentReadRepository,
-            StubDocumentReadRepository>();
+            DocumentReadRepository>();
+
+        // Storage still stub — replaced Day 18
         services.AddScoped<IStorageService,
             StubStorageService>();
 

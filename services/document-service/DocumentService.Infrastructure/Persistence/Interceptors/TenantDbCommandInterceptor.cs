@@ -44,8 +44,8 @@ public sealed class TenantDbCommandInterceptor : DbCommandInterceptor
 
     public override async ValueTask<InterceptionResult<object>>
         ScalarExecutingAsync(
-            DbCommand command,
-            CommandEventData eventData,
+            DbCommand command,  //represent actual sql statements 
+            CommandEventData eventData,//it provide which dbcontext is running the query and it allow us to where the call is coming from.
             InterceptionResult<object> result,
             CancellationToken cancellationToken = default)
     {
@@ -66,6 +66,8 @@ public sealed class TenantDbCommandInterceptor : DbCommandInterceptor
             using var tenantCommand = command.Connection!.CreateCommand();
             tenantCommand.Transaction = command.Transaction;
             tenantCommand.CommandText =
+
+            //set tenant ensures that only tenants with the correct tenant_id can access their data
                 $"SET LOCAL app.current_tenant_id = " +
                 $"'{_tenantContext.TenantId}'";
 
