@@ -7,14 +7,6 @@ using Shared.Domain.Common;
 
 namespace DocumentService.API.Controllers;
 
-// UploadController — handles chunked file uploads
-//
-// Flow:
-// 1. Client POSTs to /api/upload/init — creates upload session
-// 2. Client sends chunks via POST /api/upload/{uploadId}/chunk
-// 3. Each chunk tracked in Redis
-// 4. On completion — UploadDocumentCommand dispatched
-// 5. DocumentUploadedEvent published to RabbitMQ
 [ApiController]
 [Route("api/upload")]
 [Authorize]
@@ -37,8 +29,6 @@ public sealed class UploadController : ControllerBase
         _logger        = logger;
     }
 
-    // POST api/upload/init
-    // Initializes upload session — returns uploadId
     [HttpPost("init")]
     public async Task<IActionResult> InitUpload(
         [FromBody] InitUploadRequest request,
@@ -63,11 +53,6 @@ public sealed class UploadController : ControllerBase
 
         await _sessionStore.SaveAsync(session, ct);
 
-        _logger.LogInformation(
-            "Upload session initialized. UploadId: {UploadId} " +
-            "FileName: {FileName} TotalSize: {TotalSize}",
-            uploadId, request.FileName, request.TotalSize);
-
         return Ok(new InitUploadResponse
         {
             UploadId        = uploadId,
@@ -75,9 +60,10 @@ public sealed class UploadController : ControllerBase
         });
     }
 
-    // POST api/upload/{uploadId}/chunk
-    // Receives a single chunk and saves progress to Redis
+    // DisableRequestSizeLimit — allow large file chunks
+    // DisableFormValueModelBinding — raw body not form data
     [HttpPost("{uploadId}/chunk")]
+    [DisableRequestSizeLimit]
     public async Task<IActionResult> UploadChunk(
         string uploadId,
         [FromQuery] long offset,
@@ -88,27 +74,30 @@ public sealed class UploadController : ControllerBase
         if (session is null)
             return NotFound($"Upload session not found: {uploadId}");
 
+        // Tenant isolation check
+        if (session.TenantId != _tenantContext.TenantId)
+            return Forbid();
+
         if (session.IsComplete)
             return BadRequest("Upload already completed");
 
-        // Read chunk from request body
+        // Read chunk bytes — EnableBuffering allows re-read
+        Request.EnableBuffering();
+
         using var memStream = new MemoryStream();
         await Request.Body.CopyToAsync(memStream, ct);
-        var chunkBytes = memStream.ToArray();
+        var chunkSize = memStream.Length;
 
-        // Calculate new offset after this chunk
-        var newOffset = offset + chunkBytes.Length;
+        var newOffset = offset + chunkSize;
 
-        // Update progress in Redis
         await _sessionStore.UpdateProgressAsync(
             uploadId, newOffset, ct);
 
         _logger.LogDebug(
             "Chunk received. UploadId: {UploadId} " +
             "Offset: {Offset} ChunkSize: {ChunkSize}",
-            uploadId, offset, chunkBytes.Length);
+            uploadId, offset, chunkSize);
 
-        // Check if upload is complete
         if (newOffset >= session.TotalSize)
         {
             await _sessionStore.CompleteAsync(uploadId, ct);
@@ -132,8 +121,6 @@ public sealed class UploadController : ControllerBase
         });
     }
 
-    // GET api/upload/{uploadId}/status
-    // Returns current upload progress
     [HttpGet("{uploadId}/status")]
     public async Task<IActionResult> GetStatus(
         string uploadId,
@@ -142,6 +129,10 @@ public sealed class UploadController : ControllerBase
         var session = await _sessionStore.GetAsync(uploadId, ct);
 
         if (session is null)
+            return NotFound($"Upload session not found: {uploadId}");
+
+        // Tenant isolation
+        if (session.TenantId != _tenantContext.TenantId)
             return NotFound($"Upload session not found: {uploadId}");
 
         return Ok(new
@@ -158,8 +149,6 @@ public sealed class UploadController : ControllerBase
         });
     }
 
-    // DELETE api/upload/{uploadId}
-    // Cancels upload and cleans up Redis session
     [HttpDelete("{uploadId}")]
     public async Task<IActionResult> CancelUpload(
         string uploadId,
@@ -170,29 +159,19 @@ public sealed class UploadController : ControllerBase
         if (session is null)
             return NotFound($"Upload session not found: {uploadId}");
 
-        await _sessionStore.DeleteAsync(uploadId, ct);
+        // Tenant isolation check
+        if (session.TenantId != _tenantContext.TenantId)
+            return NotFound($"Upload session not found: {uploadId}");
 
-        _logger.LogInformation(
-            "Upload cancelled. UploadId: {UploadId}", uploadId);
+        await _sessionStore.DeleteAsync(uploadId, ct);
 
         return NoContent();
     }
 
-    // Called when all chunks received
-    // Dispatches UploadDocumentCommand to Application layer
     private async Task FinalizeUploadAsync(
         UploadSession session,
         CancellationToken ct)
     {
-        _logger.LogInformation(
-            "Finalizing upload. UploadId: {UploadId} " +
-            "FileName: {FileName}",
-            session.UploadId, session.FileName);
-
-        // Match exact constructor:
-        // UploadDocumentCommand(TenantId, UploadedByUserId,
-        //   Title, MimeType, FileSizeBytes, FileContent,
-        //   Description?, Tags?)
         var command = new UploadDocumentCommand(
             TenantId:         session.TenantId,
             UploadedByUserId: session.UserId,
@@ -206,7 +185,6 @@ public sealed class UploadController : ControllerBase
 
         if (result.IsFailure)
         {
-            // Error has Code and Description — not Message
             _logger.LogError(
                 "Failed to finalize upload. UploadId: {UploadId} " +
                 "Error: {Code} - {Description}",
@@ -227,7 +205,6 @@ public sealed class UploadController : ControllerBase
     }
 }
 
-// Request/Response models
 public sealed record InitUploadRequest
 {
     public string FileName    { get; init; } = string.Empty;

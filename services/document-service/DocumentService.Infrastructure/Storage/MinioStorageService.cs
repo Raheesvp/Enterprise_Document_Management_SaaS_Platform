@@ -7,20 +7,6 @@ using Minio.Exceptions;
 
 namespace DocumentService.Infrastructure.Storage;
 
-// MinioStorageService ï¿½ real file storage implementation
-//
-// MinIO is S3-compatible ï¿½ same API as AWS S3
-// Swap this for S3StorageService or AzureStorageService
-// in production with zero application code change
-//
-// Storage path pattern:
-// {tenantId}/{year}/{month}/{documentId}/{filename}
-// Example: 3fa85f64/2024/03/abc123/contract.pdf
-//
-// This pattern ensures:
-// ? Tenant data physically separated in storage
-// ? Easy to audit and archive by date
-// ? Efficient listing and cleanup per tenant
 public sealed class MinioStorageService : IStorageService
 {
     private readonly IMinioClient _minioClient;
@@ -49,22 +35,37 @@ public sealed class MinioStorageService : IStorageService
     {
         try
         {
-            // Ensure bucket exists before uploading
             await EnsureBucketExistsAsync(ct);
+
+            // MinIO requires object size — read into memory if unknown
+            // Stream.Null and streams with no length need special handling
+            byte[] data;
+            if (content == Stream.Null || content.Length == 0)
+            {
+                // Empty file — create 1 byte placeholder
+                data = new byte[] { 0 };
+            }
+            else
+            {
+                using var ms = new MemoryStream();
+                await content.CopyToAsync(ms, ct);
+                data = ms.ToArray();
+            }
+
+            using var dataStream = new MemoryStream(data);
 
             var args = new PutObjectArgs()
                 .WithBucket(_bucketName)
                 .WithObject(path)
-                .WithStreamData(content)
-                .WithObjectSize(content.Length)
+                .WithStreamData(dataStream)
+                .WithObjectSize(dataStream.Length)
                 .WithContentType(contentType);
 
             await _minioClient.PutObjectAsync(args, ct);
 
             _logger.LogInformation(
-                "File uploaded successfully. Path: {Path} " +
-                "Bucket: {Bucket}",
-                path, _bucketName);
+                "File uploaded. Path: {Path} Size: {Size}",
+                path, data.Length);
 
             return path;
         }
@@ -93,19 +94,12 @@ public sealed class MinioStorageService : IStorageService
                 });
 
             await _minioClient.GetObjectAsync(args, ct);
-
-            // Reset position so caller can read from beginning
             memoryStream.Position = 0;
-
-            _logger.LogInformation(
-                "File downloaded successfully. Path: {Path}", path);
 
             return memoryStream;
         }
         catch (ObjectNotFoundException)
         {
-            _logger.LogWarning(
-                "File not found in storage. Path: {Path}", path);
             throw new FileNotFoundException(
                 $"File not found: {path}");
         }
@@ -128,9 +122,6 @@ public sealed class MinioStorageService : IStorageService
                 .WithObject(path);
 
             await _minioClient.RemoveObjectAsync(args, ct);
-
-            _logger.LogInformation(
-                "File deleted successfully. Path: {Path}", path);
         }
         catch (Exception ex)
         {
@@ -160,18 +151,14 @@ public sealed class MinioStorageService : IStorageService
         catch (Exception ex)
         {
             _logger.LogError(ex,
-                "Failed to check file existence. Path: {Path}", path);
+                "Failed to check existence. Path: {Path}", path);
             return false;
         }
     }
 
-    // Returns direct URL for browser access
-    // In production this would be a CDN URL or presigned S3 URL
     public string GetPublicUrl(string path)
         => $"http://{_endpoint}/{_bucketName}/{path}";
 
-    // Creates bucket if it does not exist
-    // Called before every upload ï¿½ safe to call multiple times
     private async Task EnsureBucketExistsAsync(CancellationToken ct)
     {
         var existsArgs = new BucketExistsArgs()
