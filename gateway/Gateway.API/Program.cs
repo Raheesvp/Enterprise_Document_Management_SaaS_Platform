@@ -85,6 +85,8 @@ if (app.Environment.IsDevelopment())
         // Same-origin path via gateway proxy (avoids browser CORS issues)
         c.SwaggerEndpoint("/identity-swagger/v1/swagger.json", "Identity Service API");
 
+        c.SwaggerEndpoint("/workflow-swagger/v1/swagger.json", "Workflow Service");
+
         // This shows the Gateway's own (empty) definition
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Identity Service(via Gateway)");
 

@@ -1,13 +1,15 @@
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using Shared.Domain.Common;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using WorkflowService.Application;
 using WorkflowService.Infrastructure;
+using WorkflowService.Infrastructure.Jobs;
 using WorkflowService.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
-using Shared.Domain.Common;
 using WorkflowService.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -43,9 +45,9 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    options.RequireHttpsMetadata    = false;
+    options.RequireHttpsMetadata       = false;
     options.UseSecurityTokenValidators = true;
-    options.TokenValidationParameters = new TokenValidationParameters
+    options.TokenValidationParameters  = new TokenValidationParameters
     {
         ValidateIssuer           = true,
         ValidateAudience         = true,
@@ -102,6 +104,7 @@ builder.Services.AddHealthChecks()
 
 var app = builder.Build();
 
+// Auto migrate on startup
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider
@@ -117,10 +120,20 @@ app.UseSwaggerUI(c =>
     c.RoutePrefix = "swagger";
 });
 
+// Hangfire dashboard — view background jobs
+app.UseHangfireDashboard("/hangfire");
+
 app.UseSerilogRequestLogging();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.MapHealthChecks("/health");
+
+// Schedule SLA checker — runs every 5 minutes
+RecurringJob.AddOrUpdate<SlaCheckerJob>(
+    recurringJobId: "sla-checker",
+    methodCall:     job => job.ExecuteAsync(),
+    cronExpression: "*/5 * * * *",
+    queue:          "sla");
 
 app.Run();

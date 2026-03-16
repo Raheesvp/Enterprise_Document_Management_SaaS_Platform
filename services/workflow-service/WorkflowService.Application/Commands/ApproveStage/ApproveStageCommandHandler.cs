@@ -2,7 +2,9 @@ using MediatR;
 using Shared.Domain.Common;
 using WorkflowService.Application.DTOs;
 using WorkflowService.Application.Interfaces;
+using WorkflowService.Domain.Entities;
 using WorkflowService.Domain.Errors;
+using WorkflowService.Domain.StateMachines;
 
 namespace WorkflowService.Application.Commands.ApproveStage;
 
@@ -43,13 +45,18 @@ public sealed class ApproveStageCommandHandler
             return Result.Failure<WorkflowInstanceDto>(
                 WorkflowErrors.Stage.NotAssignedToUser);
 
-        instance.ApproveCurrentStage(
-            request.UserId, request.Comments);
+        // Use state machine for safe transition
+        var stateMachine = new WorkflowStateMachine(instance);
+        stateMachine.Approve(request.UserId, request.Comments);
 
         await _repository.UpdateAsync(instance, cancellationToken);
 
-        return Result.Success(new WorkflowInstanceDto(
-            instance.Id,
+        return Result.Success(MapToDto(instance));
+    }
+
+    private static WorkflowInstanceDto MapToDto(
+        WorkflowInstance instance) =>
+        new(instance.Id,
             instance.TenantId,
             instance.DocumentId,
             instance.DocumentTitle,
@@ -58,14 +65,8 @@ public sealed class ApproveStageCommandHandler
             instance.StartedAt,
             instance.CompletedAt,
             instance.Stages.Select(s => new WorkflowStageDto(
-                s.Id,
-                s.StageOrder,
-                s.StageName,
-                s.AssignedToUserId,
-                s.AssignedToEmail,
-                s.Status.ToString(),
-                s.Comments,
-                s.SlaDeadline,
-                s.ProcessedAt)).ToList()));
-    }
+                s.Id, s.StageOrder, s.StageName,
+                s.AssignedToUserId, s.AssignedToEmail,
+                s.Status.ToString(), s.Comments,
+                s.SlaDeadline, s.ProcessedAt)).ToList());
 }

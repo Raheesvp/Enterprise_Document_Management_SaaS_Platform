@@ -3,6 +3,7 @@ using Shared.Domain.Common;
 using WorkflowService.Application.DTOs;
 using WorkflowService.Application.Interfaces;
 using WorkflowService.Domain.Errors;
+using WorkflowService.Domain.StateMachines;
 
 namespace WorkflowService.Application.Commands.RejectStage;
 
@@ -39,8 +40,9 @@ public sealed class RejectStageCommandHandler
             return Result.Failure<WorkflowInstanceDto>(
                 WorkflowErrors.Stage.NotAssignedToUser);
 
-        instance.RejectCurrentStage(
-            request.UserId, request.Comments);
+        // Use state machine for safe transition
+        var stateMachine = new WorkflowStateMachine(instance);
+        stateMachine.Reject(request.UserId, request.Comments);
 
         await _repository.UpdateAsync(instance, cancellationToken);
 
@@ -54,14 +56,9 @@ public sealed class RejectStageCommandHandler
             instance.StartedAt,
             instance.CompletedAt,
             instance.Stages.Select(s => new WorkflowStageDto(
-                s.Id,
-                s.StageOrder,
-                s.StageName,
-                s.AssignedToUserId,
-                s.AssignedToEmail,
-                s.Status.ToString(),
-                s.Comments,
-                s.SlaDeadline,
-                s.ProcessedAt)).ToList()));
+                s.Id, s.StageOrder, s.StageName,
+                s.AssignedToUserId, s.AssignedToEmail,
+                s.Status.ToString(), s.Comments,
+                s.SlaDeadline, s.ProcessedAt)).ToList()));
     }
 }
