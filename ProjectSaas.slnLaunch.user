@@ -17,6 +17,10 @@
       {
         "Path": "services\\workflow-service\\WorkflowService.API\\WorkflowService.API.csproj",
         "Action": "Start"
+      },
+      {
+        "Path": "services\\notification-service\\NotificationService.API\\NotificationService.API.csproj",
+        "Action": "Start"
       }
     ]
   }

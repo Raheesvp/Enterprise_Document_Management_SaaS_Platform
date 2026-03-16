@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Projects\\ProjectSaaS\\shared\\Shared.Contracts\\Shared.Contracts.csproj": {}
+    "C:\\Projects\\ProjectSaas\\shared\\Shared.Contracts\\Shared.Contracts.csproj": {}
   },
   "projects": {
-    "C:\\Projects\\ProjectSaaS\\shared\\Shared.Contracts\\Shared.Contracts.csproj": {
+    "C:\\Projects\\ProjectSaas\\shared\\Shared.Contracts\\Shared.Contracts.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Projects\\ProjectSaaS\\shared\\Shared.Contracts\\Shared.Contracts.csproj",
+        "projectUniqueName": "C:\\Projects\\ProjectSaas\\shared\\Shared.Contracts\\Shared.Contracts.csproj",
         "projectName": "Shared.Contracts",
-        "projectPath": "C:\\Projects\\ProjectSaaS\\shared\\Shared.Contracts\\Shared.Contracts.csproj",
+        "projectPath": "C:\\Projects\\ProjectSaas\\shared\\Shared.Contracts\\Shared.Contracts.csproj",
         "packagesPath": "C:\\Users\\DELL\\.nuget\\packages\\",
-        "outputPath": "C:\\Projects\\ProjectSaaS\\shared\\Shared.Contracts\\obj\\",
+        "outputPath": "C:\\Projects\\ProjectSaas\\shared\\Shared.Contracts\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
