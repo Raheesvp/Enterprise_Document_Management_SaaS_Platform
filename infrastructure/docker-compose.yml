@@ -1,4 +1,4 @@
-﻿version: '3.9'
+version: '3.9'
 networks:
   documentsaas-network:
     driver: bridge
@@ -99,5 +99,13 @@ services:
       - "8081:80"
     volumes:
       - seq_data:/data
+    networks:
+      - documentsaas-network
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: documentsaas-mailhog
+    ports:
+      - "1025:1025"
+      - "8025:8025"
     networks:
       - documentsaas-network

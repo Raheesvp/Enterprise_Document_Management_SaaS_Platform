@@ -1,4 +1,6 @@
+using MassTransit;
 using MediatR;
+using Shared.Contracts.IntegrationEvents.Workflow;
 using Shared.Domain.Common;
 using WorkflowService.Application.DTOs;
 using WorkflowService.Application.Interfaces;
@@ -12,10 +14,15 @@ public sealed class StartWorkflowCommandHandler
         Result<WorkflowInstanceDto>>
 {
     private readonly IWorkflowRepository _repository;
+    private readonly IPublishEndpoint _publishEndpoint;
 
     public StartWorkflowCommandHandler(
-        IWorkflowRepository repository)
-        => _repository = repository;
+        IWorkflowRepository repository,
+        IPublishEndpoint publishEndpoint)
+    {
+        _repository      = repository;
+        _publishEndpoint = publishEndpoint;
+    }
 
     public async Task<Result<WorkflowInstanceDto>> Handle(
         StartWorkflowCommand request,
@@ -57,19 +64,36 @@ public sealed class StartWorkflowCommandHandler
             instance.AddStage(stage);
         }
 
-        // Start workflow — moves to first stage
+        // Start workflow
         instance.Start();
 
         await _repository.AddAsync(instance, cancellationToken);
+
+        // Publish WorkflowStartedEvent to RabbitMQ
+        // Notification Service picks this up and sends email
+        var firstStage = instance.GetCurrentStage();
+        if (firstStage is not null)
+        {
+            await _publishEndpoint.Publish(
+                new WorkflowStartedEvent
+                {
+                    TenantId             = instance.TenantId,
+                    WorkflowInstanceId   = instance.Id,
+                    DocumentId           = instance.DocumentId,
+                    CurrentStageName     = firstStage.StageName,
+                    AssignedToUserId     = firstStage.AssignedToUserId,
+                    AssignedToEmail      = firstStage.AssignedToEmail,
+                    SLADeadline          = firstStage.SlaDeadline
+                },
+                cancellationToken);
+        }
 
         return Result.Success(MapToDto(instance));
     }
 
     private static WorkflowInstanceDto MapToDto(
-        WorkflowInstance instance)
-    {
-        return new WorkflowInstanceDto(
-            instance.Id,
+        WorkflowInstance instance) =>
+        new(instance.Id,
             instance.TenantId,
             instance.DocumentId,
             instance.DocumentTitle,
@@ -78,14 +102,8 @@ public sealed class StartWorkflowCommandHandler
             instance.StartedAt,
             instance.CompletedAt,
             instance.Stages.Select(s => new WorkflowStageDto(
-                s.Id,
-                s.StageOrder,
-                s.StageName,
-                s.AssignedToUserId,
-                s.AssignedToEmail,
-                s.Status.ToString(),
-                s.Comments,
-                s.SlaDeadline,
-                s.ProcessedAt)).ToList());
-    }
+                s.Id, s.StageOrder, s.StageName,
+                s.AssignedToUserId, s.AssignedToEmail,
+                s.Status.ToString(), s.Comments,
+                s.SlaDeadline, s.ProcessedAt)).ToList());
 }

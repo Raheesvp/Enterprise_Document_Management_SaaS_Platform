@@ -13,8 +13,7 @@ public sealed class WorkflowRepository : IWorkflowRepository
         => _context = context;
 
     public async Task<WorkflowInstance?> GetByIdAsync(
-        Guid id,
-        Guid tenantId,
+        Guid id, Guid tenantId,
         CancellationToken ct = default)
     {
         return await _context.WorkflowInstances
@@ -24,8 +23,7 @@ public sealed class WorkflowRepository : IWorkflowRepository
     }
 
     public async Task<WorkflowInstance?> GetByDocumentIdAsync(
-        Guid documentId,
-        Guid tenantId,
+        Guid documentId, Guid tenantId,
         CancellationToken ct = default)
     {
         return await _context.WorkflowInstances
@@ -52,11 +50,11 @@ public sealed class WorkflowRepository : IWorkflowRepository
     }
 
     public async Task<WorkflowDefinition?> GetDefinitionByIdAsync(
-        Guid id,
-        Guid tenantId,
+        Guid id, Guid tenantId,
         CancellationToken ct = default)
     {
         return await _context.WorkflowDefinitions
+            .Include(d => d.Stages)
             .FirstOrDefaultAsync(
                 d => d.Id == id && d.TenantId == tenantId, ct);
     }
@@ -68,5 +66,17 @@ public sealed class WorkflowRepository : IWorkflowRepository
         await _context.WorkflowDefinitions
             .AddAsync(definition, ct);
         await _context.SaveChangesAsync(ct);
+    }
+
+    public async Task<IReadOnlyList<WorkflowDefinition>>
+        GetDefinitionsByTenantAsync(
+            Guid tenantId,
+            CancellationToken ct = default)
+    {
+        return await _context.WorkflowDefinitions
+            .Include(d => d.Stages)
+            .Where(d => d.TenantId == tenantId && d.IsActive)
+            .OrderByDescending(d => d.CreatedAt)
+            .ToListAsync(ct);
     }
 }

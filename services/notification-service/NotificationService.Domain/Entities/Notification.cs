@@ -3,7 +3,7 @@ using Shared.Domain.Primitives;
 
 namespace NotificationService.Domain.Entities;
 
-// Notification — in-app notification stored in PostgreSQL
+// Notification ï¿½ in-app notification stored in PostgreSQL
 // Created when workflow events occur
 // Read by frontend via GET /api/notifications
 public sealed class Notification : BaseEntity<Guid>

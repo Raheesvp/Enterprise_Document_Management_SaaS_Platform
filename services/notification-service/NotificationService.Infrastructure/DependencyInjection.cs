@@ -6,6 +6,7 @@ using NotificationService.Application.Interfaces;
 using NotificationService.Infrastructure.Consumers;
 using NotificationService.Infrastructure.Persistence;
 using NotificationService.Infrastructure.Repositories;
+using NotificationService.Infrastructure.Services;
 
 namespace NotificationService.Infrastructure;
 
@@ -30,7 +31,11 @@ public static class DependencyInjection
         services.AddScoped<INotificationRepository,
             NotificationRepository>();
 
-        // MassTransit + RabbitMQ consumer
+        // Email service — singleton thread safe
+        services.AddSingleton<IEmailService,
+            MailKitEmailService>();
+
+        // MassTransit + RabbitMQ
         services.AddMassTransit(x =>
         {
             x.AddConsumer<WorkflowStartedConsumer>();

@@ -27,4 +27,9 @@ public interface IWorkflowRepository
     Task AddDefinitionAsync(
         WorkflowDefinition definition,
         CancellationToken ct = default);
+
+    // New — list all definitions for a tenant
+    Task<IReadOnlyList<WorkflowDefinition>> GetDefinitionsByTenantAsync(
+        Guid tenantId,
+        CancellationToken ct = default);
 }
