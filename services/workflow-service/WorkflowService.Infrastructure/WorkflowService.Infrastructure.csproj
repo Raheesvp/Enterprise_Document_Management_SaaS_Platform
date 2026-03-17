@@ -29,6 +29,7 @@
     <ProjectReference Include="..\WorkflowService.Domain\WorkflowService.Domain.csproj" />
     <ProjectReference Include="..\WorkflowService.Application\WorkflowService.Application.csproj" />
     <ProjectReference Include="..\..\..\shared\Shared.Domain\Shared.Domain.csproj" />
+    <ProjectReference Include="..\..\..\shared\Shared.Contracts\Shared.Contracts.csproj" />
   </ItemGroup>
 
 </Project>

@@ -49,14 +49,19 @@ public sealed class WorkflowStateMachine
             .Permit(WorkflowTrigger.Complete,
                 WorkflowStatus.Approved);
 
+        // Terminal states — ignore all triggers
         _machine.Configure(WorkflowStatus.Approved)
-            .Ignore(WorkflowTrigger.Complete);
+            .Ignore(WorkflowTrigger.Complete)
+            .Ignore(WorkflowTrigger.Approve)
+            .Ignore(WorkflowTrigger.Cancel);
 
         _machine.Configure(WorkflowStatus.Rejected)
+            .Ignore(WorkflowTrigger.Reject)
             .Ignore(WorkflowTrigger.Cancel);
 
         _machine.Configure(WorkflowStatus.Cancelled)
-            .Ignore(WorkflowTrigger.Cancel);
+            .Ignore(WorkflowTrigger.Cancel)
+            .Ignore(WorkflowTrigger.Reject);
     }
 
     public void Start()
@@ -78,20 +83,22 @@ public sealed class WorkflowStateMachine
 
     public void Reject(Guid userId, string? comments = null)
     {
-        _instance.RejectCurrentStage(userId, comments);
+        // Fire state machine BEFORE updating instance
+        // to ensure state is still InProgress when trigger fires
         _machine.Fire(WorkflowTrigger.Reject);
+        _instance.RejectCurrentStage(userId, comments);
     }
 
     public void Escalate()
     {
-        _instance.EscalateCurrentStage();
         _machine.Fire(WorkflowTrigger.Escalate);
+        _instance.EscalateCurrentStage();
     }
 
     public void Cancel()
     {
-        _instance.Cancel();
         _machine.Fire(WorkflowTrigger.Cancel);
+        _instance.Cancel();
     }
 
     public bool CanFire(WorkflowTrigger trigger)

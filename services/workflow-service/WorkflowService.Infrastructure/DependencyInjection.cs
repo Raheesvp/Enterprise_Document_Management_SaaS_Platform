@@ -1,9 +1,12 @@
 using Hangfire;
 using Hangfire.PostgreSql;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Shared.Contracts.IntegrationEvents.Documents;
 using WorkflowService.Application.Interfaces;
+using WorkflowService.Infrastructure.Consumers;
 using WorkflowService.Infrastructure.Jobs;
 using WorkflowService.Infrastructure.Persistence;
 using WorkflowService.Infrastructure.Repositories;
@@ -33,7 +36,49 @@ public static class DependencyInjection
         // SLA Job
         services.AddScoped<SlaCheckerJob>();
 
-        // Hangfire — background job processing
+        // MassTransit + RabbitMQ
+        services.AddMassTransit(x =>
+        {
+            // Consumer — listens for document uploads
+            x.AddConsumer<DocumentUploadedConsumer>();
+
+            x.UsingRabbitMq((context, cfg) =>
+            {
+                var host     = configuration[
+                               "RabbitMqSettings:Host"]
+                               ?? "localhost";
+                var port     = ushort.Parse(
+                               configuration[
+                                   "RabbitMqSettings:Port"]
+                               ?? "5672");
+                var username = configuration[
+                               "RabbitMqSettings:Username"]
+                               ?? "saasuser";
+                var password = configuration[
+                               "RabbitMqSettings:Password"]
+                               ?? "SaaS@Rabbit2024!";
+                var vhost    = configuration[
+                               "RabbitMqSettings:VirtualHost"]
+                               ?? "documentsaas";
+
+                cfg.Host(host, port, vhost, h =>
+                {
+                    h.Username(username);
+                    h.Password(password);
+                });
+
+                cfg.UseMessageRetry(r =>
+                    r.Exponential(
+                        retryLimit: 3,
+                        minInterval: TimeSpan.FromSeconds(1),
+                        maxInterval: TimeSpan.FromSeconds(10),
+                        intervalDelta: TimeSpan.FromSeconds(2)));
+
+                cfg.ConfigureEndpoints(context);
+            });
+        });
+
+        // Hangfire
         services.AddHangfire(config => config
             .SetDataCompatibilityLevel(
                 CompatibilityLevel.Version_180)
