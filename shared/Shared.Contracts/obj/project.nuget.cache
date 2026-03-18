@@ -18,5 +18,15 @@
     "C:\\Users\\DELL\\.nuget\\packages\\microsoft.extensions.primitives\\8.0.0\\microsoft.extensions.primitives.8.0.0.nupkg.sha512",
     "C:\\Users\\DELL\\.nuget\\packages\\system.diagnostics.diagnosticsource\\8.0.0\\system.diagnostics.diagnosticsource.8.0.0.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "NU1900",
+      "level": "Warning",
+      "message": "Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.",
+      "projectPath": "C:\\Projects\\ProjectSaaS\\shared\\Shared.Contracts\\Shared.Contracts.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Projects\\ProjectSaaS\\shared\\Shared.Contracts\\Shared.Contracts.csproj",
+      "targetGraphs": []
+    }
+  ]
 }

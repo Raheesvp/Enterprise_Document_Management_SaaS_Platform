@@ -1,0 +1,31 @@
+@use "@angular/material" as mat;
+
+$my-theme: mat.define-theme((
+  color: (
+    theme-type: light,
+    primary: mat.$azure-palette,
+  ),
+  density: (
+    scale: 0,
+  ),
+));
+
+html {
+  @include mat.all-component-themes($my-theme);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Roboto", sans-serif;
+  background-color: #F8FAFC;
+  color: #1E293B;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}

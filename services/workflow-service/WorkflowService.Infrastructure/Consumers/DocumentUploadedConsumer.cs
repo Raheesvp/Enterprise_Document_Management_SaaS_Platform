@@ -3,32 +3,37 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Shared.Contracts.IntegrationEvents.Documents;
 using WorkflowService.Application.Commands.StartWorkflow;
+using WorkflowService.Application.Interfaces;
 
 namespace WorkflowService.Infrastructure.Consumers;
 
 // DocumentUploadedConsumer — listens for document uploads
-// When a document is uploaded this consumer fires automatically
-// It starts a default workflow for the document
 //
 // Flow:
 // Document uploaded ? DocumentUploadEvent published
 // This consumer picks it up from RabbitMQ
-// Creates a workflow instance with default stages
-// WorkflowStartedEvent published back to RabbitMQ
-// Notification Service picks up WorkflowStartedEvent
-// Approver gets notification
+//
+// It now looks up the tenant's active WorkflowDefinition
+// and uses that template to create the workflow stages.
+//
+// If no template exists for the tenant it falls back
+// to a default single-stage review workflow so the
+// pipeline never breaks.
 public sealed class DocumentUploadedConsumer
     : IConsumer<DocumentUploadEvent>
 {
     private readonly IMediator _mediator;
+    private readonly IWorkflowRepository _repository;
     private readonly ILogger<DocumentUploadedConsumer> _logger;
 
     public DocumentUploadedConsumer(
         IMediator mediator,
+        IWorkflowRepository repository,
         ILogger<DocumentUploadedConsumer> logger)
     {
-        _mediator = mediator;
-        _logger   = logger;
+        _mediator   = mediator;
+        _repository = repository;
+        _logger     = logger;
     }
 
     public async Task Consume(
@@ -43,25 +48,72 @@ public sealed class DocumentUploadedConsumer
             evt.DocumentId,
             evt.TenantId);
 
-        // Start default single-stage workflow
-        // In production this would look up the tenant workflow template
+        // Look up tenant's active workflow template
+        var definitions = await _repository
+            .GetDefinitionsByTenantAsync(
+                evt.TenantId,
+                context.CancellationToken);
+
+        // Use first active definition or fall back to default
+        var definition = definitions.FirstOrDefault();
+
+        List<StageAssignment> stages;
+        Guid definitionId;
+
+        if (definition is not null && definition.Stages.Any())
+        {
+            // Use tenant's configured template
+            _logger.LogInformation(
+                "Using tenant workflow template. " +
+                "DefinitionId: {DefinitionId} " +
+                "Name: {Name} Stages: {StageCount}",
+                definition.Id,
+                definition.Name,
+                definition.Stages.Count);
+
+            definitionId = definition.Id;
+
+            stages = definition.Stages
+                .OrderBy(s => s.Order)
+                .Select(s => new StageAssignment(
+                    StageOrder:       s.Order,
+                    StageName:        s.StageName,
+                    AssignedToUserId: evt.UploadedByUserId,
+                    AssignedToEmail:  "reviewer@company.com",
+                    SlaDays:          s.SlaDays))
+                .ToList();
+        }
+        else
+        {
+            // Fall back to default single-stage workflow
+            _logger.LogWarning(
+                "No workflow template found for tenant. " +
+                "TenantId: {TenantId} — using default",
+                evt.TenantId);
+
+            definitionId = Guid.NewGuid();
+
+            stages = new List<StageAssignment>
+            {
+                new StageAssignment(
+                    StageOrder:       1,
+                    StageName:        "Document Review",
+                    AssignedToUserId: evt.UploadedByUserId,
+                    AssignedToEmail:  "reviewer@company.com",
+                    SlaDays:          3)
+            };
+        }
+
         var command = new StartWorkflowCommand(
             TenantId:             evt.TenantId,
             DocumentId:           evt.DocumentId,
             DocumentTitle:        evt.FileName,
             InitiatedByUserId:    evt.UploadedByUserId,
-            WorkflowDefinitionId: Guid.NewGuid(),
-            StageAssignments: new List<StageAssignment>
-            {
-                new StageAssignment(
-                    StageOrder:      1,
-                    StageName:       "Document Review",
-                    AssignedToUserId: evt.UploadedByUserId,
-                    AssignedToEmail:  "reviewer@company.com",
-                    SlaDays:          3)
-            });
+            WorkflowDefinitionId: definitionId,
+            StageAssignments:     stages);
 
-        var result = await _mediator.Send(command,
+        var result = await _mediator.Send(
+            command,
             context.CancellationToken);
 
         if (result.IsFailure)
@@ -76,11 +128,13 @@ public sealed class DocumentUploadedConsumer
         else
         {
             _logger.LogInformation(
-                "Workflow started. " +
+                "Workflow started from template. " +
                 "DocumentId: {DocumentId} " +
-                "WorkflowId: {WorkflowId}",
+                "WorkflowId: {WorkflowId} " +
+                "Stages: {StageCount}",
                 evt.DocumentId,
-                result.Value.Id);
+                result.Value.Id,
+                result.Value.Stages.Count);
         }
     }
 }
