@@ -18,7 +18,7 @@ public sealed class UploadDocumentCommandHandler
         IDocumentRepository documentRepo,
         IStorageService storageService)
     {
-        _documentRepo = documentRepo;
+        _documentRepo   = documentRepo;
         _storageService = storageService;
     }
 
@@ -26,7 +26,7 @@ public sealed class UploadDocumentCommandHandler
         UploadDocumentCommand command,
         CancellationToken cancellationToken)
     {
-        // 1. Build Value Objects — enforces domain business rules
+        // 1. Build Value Objects
         DocumentTitle title;
         FileSize fileSize;
         ContentType contentType;
@@ -37,26 +37,21 @@ public sealed class UploadDocumentCommandHandler
             fileSize    = FileSize.FromBytes(command.FileSizeBytes);
             contentType = ContentType.Create(command.MimeType);
 
-
-
-            if (contentType.DocumentType == Domain.Enums.DocumentType.Other)
-    {
-        return Result.Failure<DocumentDto>(
-            new Error("Document.UnsupportedType", $"The file type '{command.MimeType}' is not allowed."));
-    }
-
+            if (contentType.DocumentType ==
+                Domain.Enums.DocumentType.Other)
+            {
+                return Result.Failure<DocumentDto>(
+                    new Error("Document.UnsupportedType",
+                        $"The file type '{command.MimeType}' is not allowed."));
+            }
         }
-
-        
-
         catch (ArgumentException ex)
         {
             return Result.Failure<DocumentDto>(
                 new Error("Document.ValidationFailed", ex.Message));
         }
 
-        // 2. Generate storage path BEFORE creating aggregate
-        // Path format: {tenantId}/{year}/{month}/{documentId}/{fileName}
+        // 2. Generate storage path
         var documentId  = Guid.NewGuid();
         var fileName    = SanitizeFileName(command.Title);
         var storagePath = StoragePath.Create(
@@ -64,16 +59,14 @@ public sealed class UploadDocumentCommandHandler
             documentId,
             fileName);
 
-        // 3. Upload file to MinIO/S3
-        // If this fails — exception propagates, no DB record created
-        // This prevents orphaned DB records with no file
+        // 3. Upload file to MinIO
         await _storageService.UploadAsync(
             storagePath.Value,
             command.FileContent,
             command.MimeType,
             cancellationToken);
 
-        // 4. Create Document aggregate — raises DocumentCreatedEvent
+        // 4. Create Document aggregate � starts as Uploading
         var document = Document.Create(
             command.TenantId,
             command.UploadedByUserId,
@@ -88,14 +81,18 @@ public sealed class UploadDocumentCommandHandler
         if (command.Tags is not null)
             document.UpdateTags(command.Tags);
 
-        // 5. Persist to database
-        // Domain events dispatched after SaveChangesAsync in infrastructure
+        // 5. Advance status � file is uploaded and ready
+        // Uploading ? Processing ? Active
+        // This makes document visible in the document list
+        document.MarkAsProcessing();
+        document.MarkAsActive();
+
+        // 6. Persist to database
         await _documentRepo.AddAsync(document, cancellationToken);
 
         return Result.Success(ToDto(document));
     }
 
-    // Remove characters that are invalid in file paths
     private static string SanitizeFileName(string title)
     {
         var invalidChars = Path.GetInvalidFileNameChars();
@@ -103,7 +100,6 @@ public sealed class UploadDocumentCommandHandler
             title.Select(c => invalidChars.Contains(c) ? '_' : c));
     }
 
-    // Map Document aggregate → DocumentDto
     private static DocumentDto ToDto(Document doc)
     {
         var current = doc.CurrentVersion!;

@@ -1,31 +1,31 @@
 export interface Document {
-  id:             string;
-  tenantId:       string;
-  title:          string;
-  status:         DocumentStatus;
-  mimeType:       string;
-  fileSizeBytes:  number;
-  storagePath:    string;
+  id:               string;
+  tenantId:         string;
+  title:            string;
+  status:           DocumentStatus;
+  mimeType:         string;
+  fileSizeBytes:    number;
+  storagePath?:     string;
   uploadedByUserId: string;
-  createdAt:      string;
-  updatedAt:      string;
+  createdAt:        string;
+  updatedAt:        string;
 }
 
 export interface DocumentVersion {
-  id:            string;
-  documentId:    string;
-  versionNumber: number;
-  storagePath:   string;
-  createdAt:     string;
-  createdByUserId: string;
+  id:               string;
+  documentId:       string;
+  versionNumber:    number;
+  storagePath:      string;
+  createdAt:        string;
+  createdByUserId:  string;
 }
 
 export interface DocumentListResponse {
-  items:       Document[];
-  totalCount:  number;
-  page:        number;
-  pageSize:    number;
-  totalPages:  number;
+  items:      Document[];
+  totalCount: number;
+  page:       number;
+  pageSize:   number;
+  totalPages: number;
 }
 
 export interface DocumentFilter {
@@ -36,14 +36,18 @@ export interface DocumentFilter {
 }
 
 export type DocumentStatus =
-  | "Draft"
+  | "Uploading"
+  | "Processing"
+  | "Active"
   | "UnderReview"
   | "Approved"
   | "Rejected"
   | "Archived";
 
 export const DocumentStatusLabels: Record<DocumentStatus, string> = {
-  Draft:       "Draft",
+  Uploading:   "Uploading",
+  Processing:  "Processing",
+  Active:      "Active",
   UnderReview: "Under Review",
   Approved:    "Approved",
   Rejected:    "Rejected",
@@ -51,8 +55,10 @@ export const DocumentStatusLabels: Record<DocumentStatus, string> = {
 };
 
 export const DocumentStatusColors: Record<DocumentStatus, string> = {
-  Draft:       "#64748B",
-  UnderReview: "#EA580C",
+  Uploading:   "#94A3B8",
+  Processing:  "#EA580C",
+  Active:      "#2563EB",
+  UnderReview: "#D97706",
   Approved:    "#16A34A",
   Rejected:    "#DC2626",
   Archived:    "#7C3AED",

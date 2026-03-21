@@ -1,16 +1,19 @@
 import { Component, Output, EventEmitter, inject } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { Router, RouterLinkActive } from "@angular/router";
+import { Router } from "@angular/router";
 import { MatIconModule } from "@angular/material/icon";
 import { MatDividerModule } from "@angular/material/divider";
 import { MatButtonModule } from "@angular/material/button";
+import { MatBadgeModule } from "@angular/material/badge";
 import { AuthService } from "../../../../core/services/auth.service";
+import { NotificationService } from "../../../../features/notifications/services/notification.service";
 
 interface NavItem {
-  label: string;
-  icon:  string;
-  route: string;
-  roles: string[];
+  label:  string;
+  icon:   string;
+  route:  string;
+  roles:  string[];
+  badge?: boolean;
 }
 
 @Component({
@@ -18,10 +21,10 @@ interface NavItem {
   standalone: true,
   imports: [
     CommonModule,
-    RouterLinkActive,
     MatIconModule,
     MatDividerModule,
     MatButtonModule,
+    MatBadgeModule,
   ],
   template: `
     <div class="sidebar">
@@ -40,12 +43,22 @@ interface NavItem {
 
       <nav class="nav-list">
         <ng-container *ngFor="let item of getVisibleItems()">
-          <div
-            class="nav-item"
+          <div class="nav-item"
             [class.active]="isActive(item.route)"
             (click)="navigate(item.route)">
-            <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
+            <mat-icon class="nav-icon"
+              [matBadge]="item.badge && notifService.unreadCount() > 0
+                ? notifService.unreadCount() : null"
+              matBadgeColor="warn"
+              matBadgeSize="small">
+              {{ item.icon }}
+            </mat-icon>
             <span class="nav-label">{{ item.label }}</span>
+            @if (item.badge && notifService.unreadCount() > 0) {
+              <span class="nav-badge">
+                {{ notifService.unreadCount() }}
+              </span>
+            }
           </div>
         </ng-container>
       </nav>
@@ -60,7 +73,9 @@ interface NavItem {
             <span class="user-name">
               {{ authService.currentUser()?.fullName }}
             </span>
-            <span class="user-role">
+            <span class="user-role"
+              [class]="'role-' +
+                authService.currentUser()?.role?.toLowerCase()">
               {{ authService.currentUser()?.role }}
             </span>
           </div>
@@ -93,10 +108,7 @@ interface NavItem {
       width: 28px;
       height: 28px;
     }
-    .logo-text {
-      display: flex;
-      flex-direction: column;
-    }
+    .logo-text { display: flex; flex-direction: column; }
     .logo-title {
       font-size: 16px;
       font-weight: 700;
@@ -126,7 +138,8 @@ interface NavItem {
       color: #475569;
       font-size: 14px;
       font-weight: 500;
-      transition: all 0.15s ease;
+      transition: all 0.15s;
+      position: relative;
     }
     .nav-item:hover {
       background: #F1F5F9;
@@ -135,10 +148,9 @@ interface NavItem {
     .nav-item.active {
       background: #EFF6FF;
       color: #2563EB;
+      font-weight: 600;
     }
-    .nav-item.active .nav-icon {
-      color: #2563EB;
-    }
+    .nav-item.active .nav-icon { color: #2563EB; }
     .nav-icon {
       font-size: 20px;
       width: 20px;
@@ -146,6 +158,14 @@ interface NavItem {
       color: #94A3B8;
     }
     .nav-label { flex: 1; }
+    .nav-badge {
+      background: #DC2626;
+      color: white;
+      border-radius: 10px;
+      padding: 1px 6px;
+      font-size: 11px;
+      font-weight: 700;
+    }
     .spacer { flex: 1; }
     .sidebar-footer {
       display: flex;
@@ -188,17 +208,20 @@ interface NavItem {
     }
     .user-role {
       font-size: 11px;
-      color: #2563EB;
       font-weight: 600;
       text-transform: uppercase;
     }
+    .role-admin   { color: #D97706; }
+    .role-manager { color: #16A34A; }
+    .role-viewer  { color: #64748B; }
     .logout-btn { color: #94A3B8; }
   `],
 })
 export class SidebarComponent {
   @Output() closeSidenav = new EventEmitter<void>();
 
-  authService = inject(AuthService);
+  authService  = inject(AuthService);
+  notifService = inject(NotificationService);
   private router = inject(Router);
 
   private navItems: NavItem[] = [
@@ -206,13 +229,12 @@ export class SidebarComponent {
     { label: "Documents",     icon: "description",   route: "/documents",        roles: ["Admin", "Manager", "Viewer"] },
     { label: "Workflows",     icon: "account_tree",  route: "/workflow",         roles: ["Admin", "Manager"] },
     { label: "Upload",        icon: "upload_file",   route: "/documents/upload", roles: ["Admin", "Manager"] },
-    { label: "Notifications", icon: "notifications", route: "/notifications",    roles: ["Admin", "Manager", "Viewer"] },
+    { label: "Notifications", icon: "notifications", route: "/notifications",    roles: ["Admin", "Manager", "Viewer"], badge: true },
   ];
 
   getVisibleItems(): NavItem[] {
     const role = this.authService.currentUser()?.role ?? "";
-    return this.navItems.filter((item) =>
-      item.roles.includes(role));
+    return this.navItems.filter(item => item.roles.includes(role));
   }
 
   isActive(route: string): boolean {
@@ -227,7 +249,7 @@ export class SidebarComponent {
 
   getInitials(): string {
     const name = this.authService.currentUser()?.fullName ?? "";
-    return name.split(" ").map((n) => n[0])
+    return name.split(" ").map(n => n[0])
       .join("").toUpperCase().slice(0, 2);
   }
 }

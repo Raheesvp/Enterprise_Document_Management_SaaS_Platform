@@ -3,7 +3,7 @@ import {
   Output,
   EventEmitter,
   inject,
-  signal,
+  OnInit,
 } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { RouterLink } from "@angular/router";
@@ -14,6 +14,7 @@ import { MatMenuModule } from "@angular/material/menu";
 import { MatBadgeModule } from "@angular/material/badge";
 import { MatDividerModule } from "@angular/material/divider";
 import { AuthService } from "../../../../core/services/auth.service";
+import { NotificationService } from "../../../../features/notifications/services/notification.service";
 
 @Component({
   selector: "app-topbar",
@@ -38,9 +39,16 @@ import { AuthService } from "../../../../core/services/auth.service";
       <span class="app-title">Document SaaS</span>
       <span class="spacer"></span>
 
+      <!-- Notification Bell with Badge -->
       <button mat-icon-button routerLink="/notifications"
         class="notif-btn">
-        <mat-icon>notifications</mat-icon>
+        <mat-icon
+          [matBadge]="notifService.unreadCount() > 0
+            ? notifService.unreadCount() : null"
+          matBadgeColor="warn"
+          matBadgeSize="small">
+          notifications
+        </mat-icon>
       </button>
 
       <button mat-button [matMenuTriggerFor]="userMenu"
@@ -68,6 +76,11 @@ import { AuthService } from "../../../../core/services/auth.service";
         <button mat-menu-item routerLink="/notifications">
           <mat-icon>notifications</mat-icon>
           Notifications
+          @if (notifService.unreadCount() > 0) {
+            <span class="menu-badge">
+              {{ notifService.unreadCount() }}
+            </span>
+          }
         </button>
         <mat-divider></mat-divider>
         <button mat-menu-item (click)="authService.logout()">
@@ -142,11 +155,32 @@ import { AuthService } from "../../../../core/services/auth.service";
       font-weight: 600;
       text-transform: uppercase;
     }
+    .menu-badge {
+      background: #DC2626;
+      color: white;
+      border-radius: 10px;
+      padding: 2px 6px;
+      font-size: 11px;
+      margin-left: auto;
+    }
   `],
 })
-export class TopbarComponent {
+export class TopbarComponent implements OnInit {
   @Output() toggleSidenav = new EventEmitter<void>();
-  authService = inject(AuthService);
+
+  authService  = inject(AuthService);
+  notifService = inject(NotificationService);
+
+  ngOnInit(): void {
+    // Load unread count after short delay
+    // ensures token is ready in localStorage
+    setTimeout(() => {
+      const token = localStorage.getItem("accessToken");
+      if (token) {
+        this.notifService.getUnreadCount().subscribe();
+      }
+    }, 500);
+  }
 
   getInitials(): string {
     const name = this.authService.currentUser()?.fullName ?? "";
