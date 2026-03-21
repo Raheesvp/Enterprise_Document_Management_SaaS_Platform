@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "jBrm8j3oiDM=",
+  "dgSpecHash": "LLW3Ce8YQCM=",
   "success": true,
-  "projectFilePath": "C:\\Projects\\ProjectSaaS\\shared\\Shared.Contracts\\Shared.Contracts.csproj",
+  "projectFilePath": "C:\\Projects\\ProjectSaas\\shared\\Shared.Contracts\\Shared.Contracts.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\DELL\\.nuget\\packages\\masstransit\\8.3.6\\masstransit.8.3.6.nupkg.sha512",
     "C:\\Users\\DELL\\.nuget\\packages\\masstransit.abstractions\\8.3.6\\masstransit.abstractions.8.3.6.nupkg.sha512",
@@ -18,15 +18,5 @@
     "C:\\Users\\DELL\\.nuget\\packages\\microsoft.extensions.primitives\\8.0.0\\microsoft.extensions.primitives.8.0.0.nupkg.sha512",
     "C:\\Users\\DELL\\.nuget\\packages\\system.diagnostics.diagnosticsource\\8.0.0\\system.diagnostics.diagnosticsource.8.0.0.nupkg.sha512"
   ],
-  "logs": [
-    {
-      "code": "NU1900",
-      "level": "Warning",
-      "message": "Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json.",
-      "projectPath": "C:\\Projects\\ProjectSaaS\\shared\\Shared.Contracts\\Shared.Contracts.csproj",
-      "warningLevel": 1,
-      "filePath": "C:\\Projects\\ProjectSaaS\\shared\\Shared.Contracts\\Shared.Contracts.csproj",
-      "targetGraphs": []
-    }
-  ]
+  "logs": []
 }

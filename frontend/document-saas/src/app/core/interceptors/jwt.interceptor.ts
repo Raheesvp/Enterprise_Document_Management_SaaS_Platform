@@ -5,8 +5,11 @@ import {
   HttpErrorResponse,
 } from "@angular/common/http";
 import { inject } from "@angular/core";
-import { catchError, switchMap, throwError } from "rxjs";
+import { catchError, switchMap, throwError, BehaviorSubject, filter, take } from "rxjs";
 import { AuthService } from "../services/auth.service";
+
+let isRefreshing = false;
+let refreshTokenSubject = new BehaviorSubject<string | null>(null);
 
 export const jwtInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
@@ -23,7 +26,6 @@ export const jwtInterceptor: HttpInterceptorFn = (
     return next(req);
   }
 
-  // Read from localStorage — always up to date after login
   const token = localStorage.getItem("accessToken");
 
   const authReq = token
@@ -34,24 +36,41 @@ export const jwtInterceptor: HttpInterceptorFn = (
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 && !isAuthEndpoint) {
-        return authService.refreshToken().pipe(
-          switchMap((response) => {
-            // Use the new token on retry
-            const retryReq = req.clone({
-              setHeaders: {
-                Authorization: `Bearer ${response.accessToken}`,
-              },
-            });
-            return next(retryReq);
-          }),
-          catchError((refreshError) => {
-            authService.logout();
-            return throwError(() => refreshError);
+      if (error.status !== 401) {
+        return throwError(() => error);
+      }
+
+      if (isRefreshing) {
+        return refreshTokenSubject.pipe(
+          filter((t) => t !== null),
+          take(1),
+          switchMap((newToken) => {
+            return next(req.clone({
+              setHeaders: { Authorization: `Bearer ${newToken}` },
+            }));
           })
         );
       }
-      return throwError(() => error);
+
+      isRefreshing = true;
+      refreshTokenSubject.next(null);
+
+      return authService.refreshToken().pipe(
+        switchMap((response) => {
+          isRefreshing = false;
+          refreshTokenSubject.next(response.accessToken);
+          return next(req.clone({
+            setHeaders: {
+              Authorization: `Bearer ${response.accessToken}`,
+            },
+          }));
+        }),
+        catchError((refreshError) => {
+          isRefreshing = false;
+          authService.logout();
+          return throwError(() => refreshError);
+        })
+      );
     })
   );
 };

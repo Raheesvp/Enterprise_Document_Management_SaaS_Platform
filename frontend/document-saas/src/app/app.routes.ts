@@ -2,23 +2,20 @@ import { Routes } from "@angular/router";
 import { authGuard } from "./core/guards/auth.guard";
 
 export const routes: Routes = [
-  // Default redirect
   {
     path: "",
     redirectTo: "dashboard",
     pathMatch: "full",
   },
 
-  // Auth routes — public
+  // Public auth routes — NO shell
   {
     path: "auth",
     loadChildren: () =>
-      import("./features/auth/auth.routes").then(
-        (m) => m.AUTH_ROUTES
-      ),
+      import("./features/auth/auth.routes").then((m) => m.AUTH_ROUTES),
   },
 
-  // Protected routes — wrapped in Shell layout
+  // All protected routes — wrapped in ShellComponent
   {
     path: "",
     canActivate: [authGuard],
@@ -58,9 +55,5 @@ export const routes: Routes = [
     ],
   },
 
-  // Wildcard
-  {
-    path: "**",
-    redirectTo: "dashboard",
-  },
+  { path: "**", redirectTo: "dashboard" },
 ];

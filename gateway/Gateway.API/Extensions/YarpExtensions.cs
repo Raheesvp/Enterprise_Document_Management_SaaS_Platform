@@ -38,7 +38,13 @@ public static class YarpExtensions
                     Encoding.UTF8.GetBytes(secretKey)
                 ),
 
-                ClockSkew = TimeSpan.Zero
+                ClockSkew = TimeSpan.Zero,
+
+                // CRITICAL FIX: Bypass kid matching since IdentityService token has no kid
+                IssuerSigningKeyResolver = (token, securityToken, kid, parameters) =>
+                {
+                    return new List<SecurityKey> { new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)) };
+                }
             };
 
             options.Events = new JwtBearerEvents

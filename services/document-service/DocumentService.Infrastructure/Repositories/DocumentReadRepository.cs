@@ -5,14 +5,6 @@ using Npgsql;
 
 namespace DocumentService.Infrastructure.Repositories;
 
-// DocumentReadRepository — Dapper read-side repository
-//
-// Uses raw SQL for maximum read performance
-// No EF Core change tracking overhead
-// Returns lightweight read models — not full aggregates
-//
-// Every query filters by tenant_id — application level isolation
-// PostgreSQL RLS adds database level isolation on top
 public sealed class DocumentReadRepository : IDocumentReadRepository
 {
     private readonly string _connectionString;
@@ -23,10 +15,50 @@ public sealed class DocumentReadRepository : IDocumentReadRepository
             .GetConnectionString("DocumentDb")!;
     }
 
-    // Creates a new Npgsql connection for each query
-    // Connection pooling handles performance automatically
     private NpgsqlConnection CreateConnection()
         => new(_connectionString);
+
+    // Dapper-compatible DTO — needs parameterless constructor
+    private sealed class DocumentSummaryRow
+    {
+        public Guid     Id                { get; set; }
+        public Guid     TenantId          { get; set; }
+        public string   Title             { get; set; } = "";
+        public string   Status            { get; set; } = "";
+        public string   DocumentType      { get; set; } = "";
+        public string   MimeType          { get; set; } = "";
+        public long     FileSizeBytes     { get; set; }
+        public int      VersionCount      { get; set; }
+        public Guid     UploadedByUserId  { get; set; }
+        public DateTime CreatedAt         { get; set; }
+        public DateTime UpdatedAt         { get; set; }
+        public string?  Description       { get; set; }
+        public string?  Tags              { get; set; }
+
+        public DocumentSummary ToSummary() => new(
+            Id, TenantId, Title, Status, DocumentType,
+            MimeType, FileSizeBytes, VersionCount,
+            UploadedByUserId.ToString(), CreatedAt,
+            UpdatedAt, Description, Tags);
+    }
+
+    private sealed class DocumentVersionSummaryRow
+    {
+        public Guid     Id                { get; set; }
+        public int      VersionNumber     { get; set; }
+        public long     FileSizeBytes     { get; set; }
+        public string   StoragePath       { get; set; } = "";
+        public bool     IsCurrentVersion  { get; set; }
+        public Guid     UploadedByUserId  { get; set; }
+        public DateTime CreatedAt         { get; set; }
+        public string?  ExtractedText     { get; set; }
+        public int?     PageCount         { get; set; }
+
+        public DocumentVersionSummary ToSummary() => new(
+            Id, VersionNumber, FileSizeBytes, StoragePath,
+            IsCurrentVersion, UploadedByUserId.ToString(),
+            CreatedAt, ExtractedText, PageCount);
+    }
 
     public async Task<DocumentSummary?> GetSummaryByIdAsync(
         Guid id,
@@ -41,7 +73,7 @@ public sealed class DocumentReadRepository : IDocumentReadRepository
                 d.status                AS Status,
                 d.document_type         AS DocumentType,
                 d.mime_type             AS MimeType,
-                dv.file_size_bytes      AS FileSizeBytes,
+                COALESCE(dv.file_size_bytes, 0) AS FileSizeBytes,
                 COUNT(dv2.id)           AS VersionCount,
                 d.uploaded_by_user_id   AS UploadedByUserId,
                 d.created_at            AS CreatedAt,
@@ -65,11 +97,13 @@ public sealed class DocumentReadRepository : IDocumentReadRepository
 
         await using var connection = CreateConnection();
 
-        return await connection.QueryFirstOrDefaultAsync<DocumentSummary>(
-            new CommandDefinition(
-                sql,
-                new { Id = id, TenantId = tenantId },
-                cancellationToken: ct));
+        var row = await connection
+            .QueryFirstOrDefaultAsync<DocumentSummaryRow>(
+                new CommandDefinition(sql,
+                    new { Id = id, TenantId = tenantId },
+                    cancellationToken: ct));
+
+        return row?.ToSummary();
     }
 
     public async Task<PagedResult<DocumentSummary>> GetPagedAsync(
@@ -77,19 +111,20 @@ public sealed class DocumentReadRepository : IDocumentReadRepository
         DocumentQueryFilter filter,
         CancellationToken ct = default)
     {
-        // Build dynamic WHERE clause based on filters provided
         var conditions = new List<string>
         {
             "d.tenant_id = @TenantId",
-            "d.status != 'Archived'"  // Never show archived by default
         };
+
+        // Only hide archived if status filter not explicitly set
+        if (!filter.Status.HasValue)
+            conditions.Add("d.status != 'Archived'");
 
         var parameters = new DynamicParameters();
         parameters.Add("TenantId", tenantId);
         parameters.Add("Offset", (filter.Page - 1) * filter.PageSize);
         parameters.Add("PageSize", filter.PageSize);
 
-        // Add optional filters only if provided
         if (filter.Status.HasValue)
         {
             conditions.Add("d.status = @Status");
@@ -122,13 +157,11 @@ public sealed class DocumentReadRepository : IDocumentReadRepository
 
         var whereClause = string.Join(" AND ", conditions);
 
-        // Count query — total records for pagination
         var countSql = $@"
             SELECT COUNT(*)
             FROM documents d
             WHERE {whereClause}";
 
-        // Data query — paginated results
         var dataSql = $@"
             SELECT
                 d.id                    AS Id,
@@ -162,20 +195,19 @@ public sealed class DocumentReadRepository : IDocumentReadRepository
 
         await using var connection = CreateConnection();
 
-        // Run both queries
         var totalCount = await connection.ExecuteScalarAsync<int>(
             new CommandDefinition(countSql, parameters,
                 cancellationToken: ct));
 
-        var items = await connection.QueryAsync<DocumentSummary>(
+        var rows = await connection.QueryAsync<DocumentSummaryRow>(
             new CommandDefinition(dataSql, parameters,
                 cancellationToken: ct));
 
+        var items = rows.Select(r => r.ToSummary())
+            .ToList().AsReadOnly();
+
         return new PagedResult<DocumentSummary>(
-            items.ToList().AsReadOnly(),
-            totalCount,
-            filter.Page,
-            filter.PageSize);
+            items, totalCount, filter.Page, filter.PageSize);
     }
 
     public async Task<IReadOnlyList<DocumentVersionSummary>>
@@ -203,12 +235,13 @@ public sealed class DocumentReadRepository : IDocumentReadRepository
 
         await using var connection = CreateConnection();
 
-        var versions = await connection.QueryAsync<DocumentVersionSummary>(
-            new CommandDefinition(
-                sql,
-                new { DocumentId = documentId, TenantId = tenantId },
-                cancellationToken: ct));
+        var rows = await connection
+            .QueryAsync<DocumentVersionSummaryRow>(
+                new CommandDefinition(sql,
+                    new { DocumentId = documentId, TenantId = tenantId },
+                    cancellationToken: ct));
 
-        return versions.ToList().AsReadOnly();
+        return rows.Select(r => r.ToSummary())
+            .ToList().AsReadOnly();
     }
 }
