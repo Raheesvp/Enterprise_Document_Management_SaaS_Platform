@@ -1,6 +1,7 @@
 using IdentityService.Application.Commands.LoginUser;
 using IdentityService.Application.Commands.RefreshToken;
 using IdentityService.Application.Commands.RegisterTenant;
+using IdentityService.Application.Commands.AddUser;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -67,6 +68,39 @@ public class AuthController : ControllerBase
         return Ok(result.Value);
     }
 
+    
+    /// <summary>Get all users in tenant — Admin only</summary>
+    [HttpGet("users")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetUsers(CancellationToken ct)
+    {
+        var tenantId = Guid.Parse(
+            User.FindFirst("tenant_id")?.Value ?? Guid.Empty.ToString());
+        var users = await _mediator.Send(
+            new GetUsersQuery(tenantId), ct);
+        return Ok(users);
+    }
+
+    /// <summary>Add Manager or Viewer user — Admin only</summary>
+    [HttpPost("users")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> AddUser(
+        [FromBody] AddUserCommand command,
+        CancellationToken ct)
+    {
+        // Inject TenantId from JWT — Admin cannot add users
+        // to other tenants
+        var tenantId = Guid.Parse(
+            User.FindFirst("tenant_id")?.Value ?? Guid.Empty.ToString());
+
+        var result = await _mediator.Send(
+            command with { TenantId = tenantId }, ct);
+
+        if (result.IsFailure)
+            return BadRequest(new { error = result.Error.Description });
+
+        return CreatedAtAction(nameof(AddUser), result.Value);
+    }
     /// <summary>Get current user info â€” requires valid JWT</summary>
     [HttpGet("me")]
     [Authorize]

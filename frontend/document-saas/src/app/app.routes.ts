@@ -1,5 +1,5 @@
 import { Routes } from "@angular/router";
-import { authGuard } from "./core/guards/auth.guard";
+import { authGuard, adminGuard } from "./core/guards/auth.guard";
 
 export const routes: Routes = [
   {
@@ -43,6 +43,14 @@ export const routes: Routes = [
         loadChildren: () =>
           import("./features/workflow/workflow.routes").then(
             (m) => m.WORKFLOW_ROUTES
+          ),
+      },
+      {
+        path: "users",
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import("./features/users/user-management.component").then(
+            (m) => m.UserManagementComponent
           ),
       },
       {

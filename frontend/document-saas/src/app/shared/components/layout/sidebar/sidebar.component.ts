@@ -46,13 +46,7 @@ interface NavItem {
           <div class="nav-item"
             [class.active]="isActive(item.route)"
             (click)="navigate(item.route)">
-            <mat-icon class="nav-icon"
-              [matBadge]="item.badge && notifService.unreadCount() > 0
-                ? notifService.unreadCount() : null"
-              matBadgeColor="warn"
-              matBadgeSize="small">
-              {{ item.icon }}
-            </mat-icon>
+            <mat-icon class="nav-icon">{{ item.icon }}</mat-icon>
             <span class="nav-label">{{ item.label }}</span>
             @if (item.badge && notifService.unreadCount() > 0) {
               <span class="nav-badge">
@@ -102,25 +96,13 @@ interface NavItem {
       padding: 16px;
       min-height: 64px;
     }
-    .logo-icon {
-      color: #2563EB;
-      font-size: 28px;
-      width: 28px;
-      height: 28px;
-    }
+    .logo-icon { color: #2563EB; font-size: 28px; width: 28px; height: 28px; }
     .logo-text { display: flex; flex-direction: column; }
-    .logo-title {
-      font-size: 16px;
-      font-weight: 700;
-      color: #1E293B;
-    }
+    .logo-title { font-size: 16px; font-weight: 700; color: #1E293B; }
     .logo-tenant {
-      font-size: 11px;
-      color: #94A3B8;
-      max-width: 160px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      font-size: 11px; color: #94A3B8;
+      max-width: 160px; overflow: hidden;
+      text-overflow: ellipsis; white-space: nowrap;
     }
     .nav-list {
       padding: 12px 8px;
@@ -139,78 +121,38 @@ interface NavItem {
       font-size: 14px;
       font-weight: 500;
       transition: all 0.15s;
-      position: relative;
     }
-    .nav-item:hover {
-      background: #F1F5F9;
-      color: #1E293B;
-    }
-    .nav-item.active {
-      background: #EFF6FF;
-      color: #2563EB;
-      font-weight: 600;
-    }
+    .nav-item:hover { background: #F1F5F9; color: #1E293B; }
+    .nav-item.active { background: #EFF6FF; color: #2563EB; font-weight: 600; }
     .nav-item.active .nav-icon { color: #2563EB; }
-    .nav-icon {
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
-      color: #94A3B8;
-    }
+    .nav-icon { font-size: 20px; width: 20px; height: 20px; color: #94A3B8; }
     .nav-label { flex: 1; }
     .nav-badge {
-      background: #DC2626;
-      color: white;
-      border-radius: 10px;
-      padding: 1px 6px;
-      font-size: 11px;
-      font-weight: 700;
+      background: #DC2626; color: white;
+      border-radius: 10px; padding: 1px 6px;
+      font-size: 11px; font-weight: 700;
     }
     .spacer { flex: 1; }
     .sidebar-footer {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 16px;
+      display: flex; align-items: center;
+      gap: 8px; padding: 12px 16px;
     }
     .user-info {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex: 1;
-      overflow: hidden;
+      display: flex; align-items: center;
+      gap: 10px; flex: 1; overflow: hidden;
     }
     .user-avatar {
-      width: 36px;
-      height: 36px;
-      min-width: 36px;
-      border-radius: 50%;
-      background: #2563EB;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-weight: 700;
+      width: 36px; height: 36px; min-width: 36px;
+      border-radius: 50%; background: #2563EB; color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700;
     }
-    .user-details {
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
+    .user-details { display: flex; flex-direction: column; overflow: hidden; }
     .user-name {
-      font-size: 13px;
-      font-weight: 600;
-      color: #1E293B;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      font-size: 13px; font-weight: 600; color: #1E293B;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    .user-role {
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-    }
+    .user-role { font-size: 11px; font-weight: 600; text-transform: uppercase; }
     .role-admin   { color: #D97706; }
     .role-manager { color: #16A34A; }
     .role-viewer  { color: #64748B; }
@@ -224,12 +166,45 @@ export class SidebarComponent {
   notifService = inject(NotificationService);
   private router = inject(Router);
 
+  // Navigation items with role-based visibility
   private navItems: NavItem[] = [
-    { label: "Dashboard",     icon: "dashboard",     route: "/dashboard",        roles: ["Admin", "Manager", "Viewer"] },
-    { label: "Documents",     icon: "description",   route: "/documents",        roles: ["Admin", "Manager", "Viewer"] },
-    { label: "Workflows",     icon: "account_tree",  route: "/workflow",         roles: ["Admin", "Manager"] },
-    { label: "Upload",        icon: "upload_file",   route: "/documents/upload", roles: ["Admin", "Manager"] },
-    { label: "Notifications", icon: "notifications", route: "/notifications",    roles: ["Admin", "Manager", "Viewer"], badge: true },
+    {
+      label: "Dashboard",
+      icon:  "dashboard",
+      route: "/dashboard",
+      roles: ["Admin", "Manager", "Viewer"],
+    },
+    {
+      label: "Documents",
+      icon:  "description",
+      route: "/documents",
+      roles: ["Admin", "Manager", "Viewer"],
+    },
+    {
+      label: "Workflows",
+      icon:  "account_tree",
+      route: "/workflow",
+      roles: ["Admin", "Manager"],
+    },
+    {
+      label: "Upload",
+      icon:  "upload_file",
+      route: "/documents/upload",
+      roles: ["Admin", "Manager"],
+    },
+    {
+      label: "Notifications",
+      icon:  "notifications",
+      route: "/notifications",
+      roles: ["Admin", "Manager", "Viewer"],
+      badge: true,
+    },
+    {
+      label: "Users",
+      icon:  "group",
+      route: "/users",
+      roles: ["Admin"],   // Admin only
+    },
   ];
 
   getVisibleItems(): NavItem[] {
