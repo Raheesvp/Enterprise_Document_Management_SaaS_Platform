@@ -1,4 +1,5 @@
 using MediatR;
+using NotificationService.Application.DTOs;
 using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
 using Shared.Domain.Common;
@@ -8,16 +9,22 @@ namespace NotificationService.Application.Commands.CreateNotification;
 public sealed class CreateNotificationCommandHandler
     : IRequestHandler<CreateNotificationCommand, Result<Guid>>
 {
-    private readonly INotificationRepository _repository;
+    private readonly INotificationRepository  _repository;
+    private readonly INotificationBroadcaster _broadcaster;
 
     public CreateNotificationCommandHandler(
-        INotificationRepository repository)
-        => _repository = repository;
+        INotificationRepository  repository,
+        INotificationBroadcaster broadcaster)
+    {
+        _repository  = repository;
+        _broadcaster = broadcaster;
+    }
 
     public async Task<Result<Guid>> Handle(
         CreateNotificationCommand request,
         CancellationToken cancellationToken)
     {
+        // 1. Save notification to database
         var notification = Notification.Create(
             request.TenantId,
             request.UserId,
@@ -28,6 +35,26 @@ public sealed class CreateNotificationCommandHandler
             request.ReferenceType);
 
         await _repository.AddAsync(notification, cancellationToken);
+
+        // 2. Broadcast real-time to user via SignalR
+        var dto = new NotificationDto(
+            notification.Id,
+            notification.TenantId,
+            notification.UserId,
+            notification.Title,
+            notification.Message,
+            notification.Type.ToString(),
+            notification.Status.ToString(),
+            notification.ReferenceId,
+            notification.ReferenceType,
+            notification.CreatedAt,
+            notification.ReadAt);
+
+        // Fire and forget — do not block the command
+        _ = _broadcaster.BroadcastToUserAsync(
+            notification.UserId.ToString(),
+            dto,
+            cancellationToken);
 
         return Result.Success(notification.Id);
     }

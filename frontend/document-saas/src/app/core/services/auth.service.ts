@@ -1,4 +1,4 @@
-import { Injectable, signal, computed } from "@angular/core";
+import { Injectable, signal, computed, inject } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Router } from "@angular/router";
 import { Observable, tap, catchError, throwError } from "rxjs";
@@ -30,7 +30,6 @@ export class AuthService {
     private http:   HttpClient,
     private router: Router
   ) {
-    // Restore session immediately on service creation
     this.restoreSession();
   }
 
@@ -41,7 +40,11 @@ export class AuthService {
         request
       )
       .pipe(
-        tap((response) => this.handleAuthResponse(response)),
+        tap((response) => {
+          this.handleAuthResponse(response);
+          // Start SignalR after login
+          this.startSignalR();
+        }),
         catchError((error) => {
           console.error("Login failed:", error);
           return throwError(() => error);
@@ -82,6 +85,9 @@ export class AuthService {
   }
 
   logout(): void {
+    // Stop SignalR before clearing session
+    this.stopSignalR();
+
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("currentUser");
@@ -90,7 +96,6 @@ export class AuthService {
     this.router.navigate(["/auth/login"]);
   }
 
-  // Returns token from signal OR localStorage
   getToken(): string | null {
     return this._token()
         ?? localStorage.getItem("accessToken");
@@ -117,8 +122,6 @@ export class AuthService {
     localStorage.setItem("refreshToken", response.refreshToken);
     localStorage.setItem("currentUser",
       JSON.stringify(response.user));
-
-    // Set signal immediately — interceptor reads this
     this._token.set(response.accessToken);
     this._currentUser.set(response.user);
   }
@@ -131,11 +134,11 @@ export class AuthService {
       try {
         const decoded   = jwtDecode<DecodedToken>(token);
         const isExpired = Date.now() > decoded.exp * 1000;
-
         if (!isExpired) {
-          // Set signal — ensures interceptor has token immediately
           this._token.set(token);
           this._currentUser.set(JSON.parse(user));
+          // Restart SignalR on page refresh
+          setTimeout(() => this.startSignalR(), 1000);
         } else {
           this.logout();
         }
@@ -143,5 +146,27 @@ export class AuthService {
         this.logout();
       }
     }
+  }
+
+  private startSignalR(): void {
+    // Lazy import to avoid circular dependency
+    import("./signalr.service").then(({ SignalRService }) => {
+      // SignalR service is provided in root
+      // access via injector pattern
+    });
+
+    // Use setTimeout to ensure token is in localStorage
+    setTimeout(() => {
+      const token = localStorage.getItem("accessToken");
+      if (token) {
+        // Dispatch custom event — SignalR service listens
+        window.dispatchEvent(
+          new CustomEvent("auth:login", { detail: token }));
+      }
+    }, 500);
+  }
+
+  private stopSignalR(): void {
+    window.dispatchEvent(new CustomEvent("auth:logout"));
   }
 }

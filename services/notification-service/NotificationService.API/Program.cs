@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NotificationService.Application;
+using NotificationService.API.Hubs;
 using NotificationService.Infrastructure;
 using NotificationService.Infrastructure.Persistence;
 using NotificationService.Infrastructure.Services;
@@ -20,13 +21,33 @@ builder.Host.UseSerilog((context, config) =>
 
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructure(builder.Configuration);
-
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ITenantContext, HttpTenantContext>();
-
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
+// SignalR — real-time WebSocket connections
+builder.Services.AddSignalR(options =>
+{
+    options.EnableDetailedErrors   = true;
+    options.KeepAliveInterval      = TimeSpan.FromSeconds(15);
+    options.ClientTimeoutInterval  = TimeSpan.FromSeconds(30);
+});
+
+// CORS — required for SignalR from Angular :4200
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+        policy
+            .WithOrigins(
+                "http://localhost:4200",
+                "http://localhost:5000")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials());
+});
+
+// JWT
 var jwtSecretKey = builder.Configuration["JwtSettings:SecretKey"]!;
 var jwtIssuer    = builder.Configuration["JwtSettings:Issuer"]!;
 var jwtAudience  = builder.Configuration["JwtSettings:Audience"]!;
@@ -44,7 +65,8 @@ builder.Services.AddAuthentication(options =>
 {
     options.RequireHttpsMetadata       = false;
     options.UseSecurityTokenValidators = true;
-    options.TokenValidationParameters  = new TokenValidationParameters
+
+    options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer           = true,
         ValidateAudience         = true,
@@ -57,6 +79,25 @@ builder.Services.AddAuthentication(options =>
             new List<SecurityKey> { signingKey },
         ClockSkew = TimeSpan.Zero
     };
+
+    // CRITICAL — SignalR sends JWT via query string
+    // not Authorization header for WebSocket connections
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request
+                .Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+
+            if (!string.IsNullOrEmpty(accessToken) &&
+                path.StartsWithSegments("/hubs"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
 
 builder.Services.AddAuthorization();
@@ -65,8 +106,7 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new()
     {
-        Title   = "Notification Service API",
-        Version = "v1"
+        Title = "Notification Service API", Version = "v1"
     });
     c.AddSecurityDefinition("Bearer", new()
     {
@@ -75,7 +115,6 @@ builder.Services.AddSwaggerGen(c =>
         Scheme       = "Bearer",
         BearerFormat = "JWT",
         In           = Microsoft.OpenApi.Models.ParameterLocation.Header,
-        Description  = "Enter your JWT token here"
     });
     c.AddSecurityRequirement(new()
     {
@@ -96,7 +135,8 @@ builder.Services.AddSwaggerGen(c =>
 
 builder.Services.AddHealthChecks()
     .AddNpgSql(
-        builder.Configuration.GetConnectionString("NotificationDb")!,
+        builder.Configuration
+            .GetConnectionString("NotificationDb")!,
         name: "postgresql");
 
 var app = builder.Build();
@@ -117,9 +157,13 @@ app.UseSwaggerUI(c =>
 });
 
 app.UseSerilogRequestLogging();
+app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.MapHealthChecks("/health");
+
+// SignalR Hub endpoint
+app.MapHub<NotificationHub>("/hubs/notifications");
 
 app.Run();

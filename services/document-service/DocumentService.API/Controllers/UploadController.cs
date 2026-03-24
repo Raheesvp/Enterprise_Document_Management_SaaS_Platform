@@ -1,4 +1,5 @@
 using DocumentService.Application.Commands.UploadDocument;
+using DocumentService.Application.Interfaces;
 using DocumentService.Infrastructure.Upload;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -12,21 +13,24 @@ namespace DocumentService.API.Controllers;
 [Authorize]
 public sealed class UploadController : ControllerBase
 {
-    private readonly IMediator _mediator;
-    private readonly IUploadSessionStore _sessionStore;
-    private readonly ITenantContext _tenantContext;
+    private readonly IMediator             _mediator;
+    private readonly IUploadSessionStore   _sessionStore;
+    private readonly ITenantContext        _tenantContext;
+    private readonly IStorageService       _storageService;
     private readonly ILogger<UploadController> _logger;
 
     public UploadController(
-        IMediator mediator,
-        IUploadSessionStore sessionStore,
-        ITenantContext tenantContext,
+        IMediator             mediator,
+        IUploadSessionStore   sessionStore,
+        ITenantContext        tenantContext,
+        IStorageService       storageService,
         ILogger<UploadController> logger)
     {
-        _mediator      = mediator;
-        _sessionStore  = sessionStore;
-        _tenantContext = tenantContext;
-        _logger        = logger;
+        _mediator       = mediator;
+        _sessionStore   = sessionStore;
+        _tenantContext  = tenantContext;
+        _storageService = storageService;
+        _logger         = logger;
     }
 
     [HttpPost("init")]
@@ -38,8 +42,7 @@ public sealed class UploadController : ControllerBase
             return Unauthorized("Tenant context not resolved");
 
         var uploadId = Guid.NewGuid().ToString("N");
-
-        var session = new UploadSession
+        var session  = new UploadSession
         {
             UploadId        = uploadId,
             TenantId        = _tenantContext.TenantId,
@@ -47,7 +50,8 @@ public sealed class UploadController : ControllerBase
             FileName        = request.FileName,
             ContentType     = request.ContentType,
             TotalSize       = request.TotalSize,
-            TempStoragePath = $"temp/{_tenantContext.TenantId}/{uploadId}",
+            TempStoragePath =
+                $"temp/{_tenantContext.TenantId}/{uploadId}",
             IsComplete      = false
         };
 
@@ -60,8 +64,6 @@ public sealed class UploadController : ControllerBase
         });
     }
 
-    // DisableRequestSizeLimit — allow large file chunks
-    // DisableFormValueModelBinding — raw body not form data
     [HttpPost("{uploadId}/chunk")]
     [DisableRequestSizeLimit]
     public async Task<IActionResult> UploadChunk(
@@ -72,23 +74,29 @@ public sealed class UploadController : ControllerBase
         var session = await _sessionStore.GetAsync(uploadId, ct);
 
         if (session is null)
-            return NotFound($"Upload session not found: {uploadId}");
+            return NotFound(
+                $"Upload session not found: {uploadId}");
 
-        // Tenant isolation check
         if (session.TenantId != _tenantContext.TenantId)
             return Forbid();
 
         if (session.IsComplete)
             return BadRequest("Upload already completed");
 
-        // Read chunk bytes — EnableBuffering allows re-read
         Request.EnableBuffering();
 
         using var memStream = new MemoryStream();
         await Request.Body.CopyToAsync(memStream, ct);
         var chunkSize = memStream.Length;
-
         var newOffset = offset + chunkSize;
+
+        // Store chunk to MinIO temp path
+        memStream.Position = 0;
+        await _storageService.UploadAsync(
+            session.TempStoragePath,
+            memStream,
+            session.ContentType,
+            ct);
 
         await _sessionStore.UpdateProgressAsync(
             uploadId, newOffset, ct);
@@ -129,11 +137,12 @@ public sealed class UploadController : ControllerBase
         var session = await _sessionStore.GetAsync(uploadId, ct);
 
         if (session is null)
-            return NotFound($"Upload session not found: {uploadId}");
+            return NotFound(
+                $"Upload session not found: {uploadId}");
 
-        // Tenant isolation
         if (session.TenantId != _tenantContext.TenantId)
-            return NotFound($"Upload session not found: {uploadId}");
+            return NotFound(
+                $"Upload session not found: {uploadId}");
 
         return Ok(new
         {
@@ -157,14 +166,14 @@ public sealed class UploadController : ControllerBase
         var session = await _sessionStore.GetAsync(uploadId, ct);
 
         if (session is null)
-            return NotFound($"Upload session not found: {uploadId}");
+            return NotFound(
+                $"Upload session not found: {uploadId}");
 
-        // Tenant isolation check
         if (session.TenantId != _tenantContext.TenantId)
-            return NotFound($"Upload session not found: {uploadId}");
+            return NotFound(
+                $"Upload session not found: {uploadId}");
 
         await _sessionStore.DeleteAsync(uploadId, ct);
-
         return NoContent();
     }
 
@@ -172,36 +181,63 @@ public sealed class UploadController : ControllerBase
         UploadSession session,
         CancellationToken ct)
     {
-        var command = new UploadDocumentCommand(
-            TenantId:         session.TenantId,
-            UploadedByUserId: session.UserId,
-            Title:            Path.GetFileNameWithoutExtension(
-                                  session.FileName),
-            MimeType:         session.ContentType,
-            FileSizeBytes:    session.TotalSize,
-            FileContent:      Stream.Null);
-
-        var result = await _mediator.Send(command, ct);
-
-        if (result.IsFailure)
+        try
         {
-            _logger.LogError(
-                "Failed to finalize upload. UploadId: {UploadId} " +
-                "Error: {Code} - {Description}",
-                session.UploadId,
-                result.Error.Code,
-                result.Error.Description);
+            // Download file from MinIO temp storage
+            // This is the file that was uploaded in chunks
+            var fileStream = await _storageService
+                .DownloadAsync(session.TempStoragePath, ct);
+
+            var command = new UploadDocumentCommand(
+                TenantId:         session.TenantId,
+                UploadedByUserId: session.UserId,
+                Title: Path.GetFileNameWithoutExtension(
+                    session.FileName),
+                MimeType:         session.ContentType,
+                FileSizeBytes:    session.TotalSize,
+                FileContent:      fileStream);
+
+            var result = await _mediator.Send(command, ct);
+
+            if (result.IsFailure)
+            {
+                _logger.LogError(
+                    "Failed to finalize upload. " +
+                    "UploadId: {UploadId} " +
+                    "Error: {Code} - {Description}",
+                    session.UploadId,
+                    result.Error.Code,
+                    result.Error.Description);
+            }
+            else
+            {
+                _logger.LogInformation(
+                    "Upload finalized successfully. " +
+                    "UploadId: {UploadId} " +
+                    "DocumentId: {DocumentId}",
+                    session.UploadId,
+                    result.Value.Id);
+
+                // Cleanup temp file after finalization
+                await _storageService.DeleteAsync(
+                    session.TempStoragePath, ct);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "Exception during upload finalization. " +
+                "UploadId: {UploadId}",
+                session.UploadId);
         }
     }
 
     private Guid GetUserId()
     {
-        var userIdClaim = User.FindFirst("sub")?.Value
-                       ?? User.FindFirst("user_id")?.Value;
-
-        return Guid.TryParse(userIdClaim, out var userId)
-            ? userId
-            : Guid.Empty;
+        var claim = User.FindFirst("sub")?.Value
+                 ?? User.FindFirst("user_id")?.Value;
+        return Guid.TryParse(claim, out var id)
+            ? id : Guid.Empty;
     }
 }
 

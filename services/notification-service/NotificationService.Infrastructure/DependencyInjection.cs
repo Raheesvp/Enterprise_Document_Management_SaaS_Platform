@@ -7,6 +7,7 @@ using NotificationService.Infrastructure.Consumers;
 using NotificationService.Infrastructure.Persistence;
 using NotificationService.Infrastructure.Repositories;
 using NotificationService.Infrastructure.Services;
+using Microsoft.AspNetCore.SignalR;
 
 namespace NotificationService.Infrastructure;
 
@@ -35,29 +36,28 @@ public static class DependencyInjection
         services.AddSingleton<IEmailService,
             MailKitEmailService>();
 
+        // SignalR broadcaster — scoped per request
+        services.AddScoped<INotificationBroadcaster,
+            NotificationBroadcaster>();
+
         // MassTransit + RabbitMQ
         services.AddMassTransit(x =>
         {
             x.AddConsumer<WorkflowStartedConsumer>();
-
             x.UsingRabbitMq((context, cfg) =>
             {
                 var host     = configuration[
-                               "RabbitMqSettings:Host"]
-                               ?? "localhost";
-                var port     = ushort.Parse(
-                               configuration[
-                                   "RabbitMqSettings:Port"]
-                               ?? "5672");
+                    "RabbitMqSettings:Host"] ?? "localhost";
+                var port     = ushort.Parse(configuration[
+                    "RabbitMqSettings:Port"] ?? "5672");
                 var username = configuration[
-                               "RabbitMqSettings:Username"]
-                               ?? "saasuser";
+                    "RabbitMqSettings:Username"] ?? "saasuser";
                 var password = configuration[
-                               "RabbitMqSettings:Password"]
-                               ?? "SaaS@Rabbit2024!";
+                    "RabbitMqSettings:Password"]
+                    ?? "SaaS@Rabbit2024!";
                 var vhost    = configuration[
-                               "RabbitMqSettings:VirtualHost"]
-                               ?? "documentsaas";
+                    "RabbitMqSettings:VirtualHost"]
+                    ?? "documentsaas";
 
                 cfg.Host(host, port, vhost, h =>
                 {
