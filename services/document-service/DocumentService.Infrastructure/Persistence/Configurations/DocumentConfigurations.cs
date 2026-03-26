@@ -44,6 +44,11 @@ public sealed class DocumentConfiguration
             .HasColumnName("uploaded_by_user_id")
             .IsRequired();
 
+        builder.Property(d => d.UploadedByName)
+            .HasColumnName("uploaded_by_name")
+            .HasMaxLength(200)
+            .IsRequired();
+
         // ── Value Object Mappings ──────────────────────────
         // DocumentTitle — owned, stored as single column
         builder.OwnsOne(d => d.Title, titleBuilder =>

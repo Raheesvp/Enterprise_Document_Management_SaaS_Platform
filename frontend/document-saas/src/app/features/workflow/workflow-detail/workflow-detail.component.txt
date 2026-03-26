@@ -1,8 +1,7 @@
-import {
+﻿import {
   Component,
   OnInit,
   signal,
-  computed,
   inject,
 } from "@angular/core";
 import { CommonModule } from "@angular/common";
@@ -164,7 +163,7 @@ import {
             </mat-card-content>
           </mat-card>
 
-          <!-- Action Card � only shown if current user can act -->
+          <!-- Action Card — only shown if current user can act -->
           @if (canApprove()) {
             <mat-card class="action-card">
               <mat-card-header>
@@ -387,14 +386,6 @@ export class WorkflowDetailComponent implements OnInit {
   isLoading = signal(true);
   isActing  = signal(false);
   comments  = "";
-
-  currentStage = computed(() => {
-    const wf = this.workflow();
-    if (!wf) return undefined;
-    return wf.stages.find(s => s.stageOrder === wf.currentStageOrder);
-  });
-
-
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get("id");

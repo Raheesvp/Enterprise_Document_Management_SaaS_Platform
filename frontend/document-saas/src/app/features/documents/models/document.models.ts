@@ -7,8 +7,10 @@ export interface Document {
   fileSizeBytes:    number;
   storagePath?:     string;
   uploadedByUserId: string;
+  uploadedByName:   string;
   createdAt:        string;
   updatedAt:        string;
+  currentVersion : number;
 }
 
 export interface DocumentVersion {

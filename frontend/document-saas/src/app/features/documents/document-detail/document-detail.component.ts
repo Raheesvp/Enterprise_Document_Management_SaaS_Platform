@@ -102,6 +102,13 @@ import { DocumentService } from "../services/document.service";
                 <mat-icon>account_tree</mat-icon>
                 View Workflow
               </button>
+
+              <button mat-raised-button color="accent" 
+            [routerLink]="['/upload', document()!.id]">
+               <mat-icon>history</mat-icon>
+           Upload New Version
+               </button>
+
             </mat-card-actions>
           </mat-card>
 
@@ -115,18 +122,22 @@ import { DocumentService } from "../services/document.service";
               @if (versions().length === 0) {
                 <p class="no-versions">No versions available</p>
               }
-              @for (version of versions(); track version.id) {
-                <div class="version-item">
-                  <div class="version-badge">
-                    v{{ version.versionNumber }}
-                  </div>
-                  <div class="version-info">
-                    <span class="version-date">
-                      {{ version.createdAt | date: "dd MMM yyyy HH:mm" }}
-                    </span>
-                  </div>
-                </div>
-              }
+          @for (version of versions(); track version.id) {
+  <div class="version-item">
+       <div class="version-badge">v{{ version.versionNumber }}</div>
+         <div class="version-info">
+           <span class="version-date">
+            {{ version.createdAt | date: "dd MMM yyyy HH:mm" }}
+             </span>
+      @if (version.versionNumber === document()?.currentVersion) {
+        <span class="current-label">Current</span>
+      }
+     </div>
+    <button mat-icon-button (click)="docService.downloadVersion(version.id)">
+      <mat-icon>download</mat-icon>
+    </button>
+  </div>
+}
             </mat-card-content>
           </mat-card>
 

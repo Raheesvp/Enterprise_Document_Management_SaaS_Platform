@@ -44,6 +44,18 @@ export class DocumentService {
       `${this.base}/${id}/archive`, {});
   }
 
+  downloadDocument(id: string): Observable<Blob> {
+    return this.http.get(`${this.base}/${id}/download`, {
+      responseType: "blob",
+    });
+  }
+
+  downloadVersion(versionId: string): Observable<Blob> {
+    return this.http.get(`${this.base}/versions/${versionId}/download`, {
+      responseType: "blob",
+    });
+  }
+
   formatFileSize(bytes: number): string {
     if (!bytes || bytes === 0) return "0 B";
     const k     = 1024;

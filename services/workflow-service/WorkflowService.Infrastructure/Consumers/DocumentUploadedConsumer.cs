@@ -7,7 +7,7 @@ using WorkflowService.Application.Interfaces;
 
 namespace WorkflowService.Infrastructure.Consumers;
 
-// DocumentUploadedConsumer � listens for document uploads
+// DocumentUploadedConsumer â€” listens for document uploads
 //
 // Flow:
 // Document uploaded ? DocumentUploadEvent published
@@ -48,14 +48,27 @@ public sealed class DocumentUploadedConsumer
             evt.DocumentId,
             evt.TenantId);
 
-        // Look up tenant's active workflow template
-        var definitions = await _repository
+        // Look up tenant's active workflow templates
+        var allDefinitions = await _repository
             .GetDefinitionsByTenantAsync(
                 evt.TenantId,
                 context.CancellationToken);
 
-        // Use first active definition or fall back to default
-        var definition = definitions.FirstOrDefault();
+        // If no tenant-specific definitions, look for global ones (seeded with Guid.Empty)
+        if (!allDefinitions.Any())
+        {
+            allDefinitions = await _repository
+                .GetDefinitionsByTenantAsync(
+                    Guid.Empty,
+                    context.CancellationToken);
+        }
+
+        // Mapping Logic: Attempt to find a workflow that matches the document type
+        var documentType = GetDocumentTypeFromMimeType(evt.ContentType);
+        
+        var definition = allDefinitions.FirstOrDefault(d => 
+            d.Name.Contains(documentType, StringComparison.OrdinalIgnoreCase))
+            ?? allDefinitions.FirstOrDefault();
 
         List<StageAssignment> stages;
         Guid definitionId;
@@ -66,10 +79,12 @@ public sealed class DocumentUploadedConsumer
             _logger.LogInformation(
                 "Using tenant workflow template. " +
                 "DefinitionId: {DefinitionId} " +
-                "Name: {Name} Stages: {StageCount}",
+                "Name: {Name} Stages: {StageCount} " +
+                "Matched Type: {MatchedType}",
                 definition.Id,
                 definition.Name,
-                definition.Stages.Count);
+                definition.Stages.Count,
+                documentType);
 
             definitionId = definition.Id;
 
@@ -88,7 +103,7 @@ public sealed class DocumentUploadedConsumer
             // Fall back to default single-stage workflow
             _logger.LogWarning(
                 "No workflow template found for tenant. " +
-                "TenantId: {TenantId} � using default",
+                "TenantId: {TenantId} â€” using default",
                 evt.TenantId);
 
             definitionId = Guid.NewGuid();
@@ -136,5 +151,19 @@ public sealed class DocumentUploadedConsumer
                 result.Value.Id,
                 result.Value.Stages.Count);
         }
+    }
+
+    private static string GetDocumentTypeFromMimeType(string mimeType)
+    {
+        if (string.IsNullOrWhiteSpace(mimeType)) return "General";
+
+        return mimeType.ToLowerInvariant() switch
+        {
+            "application/pdf" => "PDF",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => "Word",
+            "application/vnd.ms-excel" or "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => "Spreadsheet",
+            "image/jpeg" or "image/png" => "Image",
+            _ => "General"
+        };
     }
 }

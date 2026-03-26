@@ -33,13 +33,7 @@ public class UploadDocumentCommandHandlerTests
                 It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
-        var command = new UploadDocumentCommand(
-            TenantId:        Guid.NewGuid(),
-            UploadedByUserId: Guid.NewGuid(),
-            Title:           "Invoice Q1.pdf",
-            MimeType:        "application/pdf",
-            FileSizeBytes:   1024 * 1024,
-            FileContent:     new MemoryStream(new byte[100]));
+        var command = new UploadDocumentCommand(TenantId:        Guid.NewGuid(), UploadedByUserId: Guid.NewGuid(), "Test User", Title:           "Invoice Q1.pdf", MimeType:        "application/pdf", FileSizeBytes:   1024 * 1024, FileContent:     new MemoryStream(new byte[100]));
 
         // Act
         var result = await CreateHandler().Handle(command, default);
@@ -67,13 +61,7 @@ public class UploadDocumentCommandHandlerTests
     public async Task Handle_FileSizeExceeds500MB_ReturnsFailure()
     {
         // Arrange — 600MB exceeds the 500MB domain rule
-        var command = new UploadDocumentCommand(
-            TenantId:        Guid.NewGuid(),
-            UploadedByUserId: Guid.NewGuid(),
-            Title:           "HugeFile.pdf",
-            MimeType:        "application/pdf",
-            FileSizeBytes:   600L * 1024 * 1024,
-            FileContent:     new MemoryStream());
+        var command = new UploadDocumentCommand(TenantId:        Guid.NewGuid(), UploadedByUserId: Guid.NewGuid(), "Test User", Title:           "HugeFile.pdf", MimeType:        "application/pdf", FileSizeBytes:   600L * 1024 * 1024, FileContent:     new MemoryStream());
 
         // Act
         var result = await CreateHandler().Handle(command, default);
@@ -97,13 +85,7 @@ public class UploadDocumentCommandHandlerTests
     [Fact]
     public async Task Handle_EmptyTitle_ReturnsFailure()
     {
-        var command = new UploadDocumentCommand(
-            TenantId:        Guid.NewGuid(),
-            UploadedByUserId: Guid.NewGuid(),
-            Title:           "",
-            MimeType:        "application/pdf",
-            FileSizeBytes:   1024,
-            FileContent:     new MemoryStream());
+        var command = new UploadDocumentCommand(TenantId:        Guid.NewGuid(), UploadedByUserId: Guid.NewGuid(), "Test User", Title:           "", MimeType:        "application/pdf", FileSizeBytes:   1024, FileContent:     new MemoryStream());
 
         var result = await CreateHandler().Handle(command, default);
 
@@ -113,13 +95,7 @@ public class UploadDocumentCommandHandlerTests
     [Fact]
     public async Task Handle_UnsupportedMimeType_ReturnsFailure()
     {
-        var command = new UploadDocumentCommand(
-            TenantId:        Guid.NewGuid(),
-            UploadedByUserId: Guid.NewGuid(),
-            Title:           "Virus.exe",
-            MimeType:        "application/exe",
-            FileSizeBytes:   1024,
-            FileContent:     new MemoryStream());
+        var command = new UploadDocumentCommand(TenantId:        Guid.NewGuid(), UploadedByUserId: Guid.NewGuid(), "Test User", Title:           "Virus.exe", MimeType:        "application/exe", FileSizeBytes:   1024, FileContent:     new MemoryStream());
 
         var result = await CreateHandler().Handle(command, default);
 

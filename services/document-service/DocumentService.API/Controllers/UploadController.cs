@@ -13,17 +13,17 @@ namespace DocumentService.API.Controllers;
 [Authorize]
 public sealed class UploadController : ControllerBase
 {
-    private readonly IMediator             _mediator;
-    private readonly IUploadSessionStore   _sessionStore;
-    private readonly ITenantContext        _tenantContext;
-    private readonly IStorageService       _storageService;
+    private readonly IMediator               _mediator;
+    private readonly IUploadSessionStore     _sessionStore;
+    private readonly ITenantContext          _tenantContext;
+    private readonly IStorageService         _storageService;
     private readonly ILogger<UploadController> _logger;
 
     public UploadController(
-        IMediator             mediator,
-        IUploadSessionStore   sessionStore,
-        ITenantContext        tenantContext,
-        IStorageService       storageService,
+        IMediator               mediator,
+        IUploadSessionStore     sessionStore,
+        ITenantContext          tenantContext,
+        IStorageService         storageService,
         ILogger<UploadController> logger)
     {
         _mediator       = mediator;
@@ -52,7 +52,8 @@ public sealed class UploadController : ControllerBase
             TotalSize       = request.TotalSize,
             TempStoragePath =
                 $"temp/{_tenantContext.TenantId}/{uploadId}",
-            IsComplete      = false
+            IsComplete      = false,
+            DocumentId      = request.DocumentId
         };
 
         await _sessionStore.SaveAsync(session, ct);
@@ -98,17 +99,25 @@ public sealed class UploadController : ControllerBase
             session.ContentType,
             ct);
 
+        _logger.LogDebug(
+            "[CHUNK] UploadId: {UploadId} " +
+            "Offset: {Offset} Size: {Size} " +
+            "TempPath: {TempPath}",
+            uploadId, offset, chunkSize,
+            session.TempStoragePath);
+
         await _sessionStore.UpdateProgressAsync(
             uploadId, newOffset, ct);
-
-        _logger.LogDebug(
-            "Chunk received. UploadId: {UploadId} " +
-            "Offset: {Offset} ChunkSize: {ChunkSize}",
-            uploadId, offset, chunkSize);
 
         if (newOffset >= session.TotalSize)
         {
             await _sessionStore.CompleteAsync(uploadId, ct);
+
+            _logger.LogInformation(
+                "[CHUNK] All chunks received. " +
+                "Finalizing UploadId: {UploadId}",
+                uploadId);
+
             await FinalizeUploadAsync(session, ct);
 
             return Ok(new
@@ -183,26 +192,39 @@ public sealed class UploadController : ControllerBase
     {
         try
         {
+            _logger.LogInformation(
+                "[FINALIZE] Starting. UploadId: {UploadId} " +
+                "TempPath: {TempPath} Size: {Size}",
+                session.UploadId,
+                session.TempStoragePath,
+                session.TotalSize);
+
             // Download file from MinIO temp storage
-            // This is the file that was uploaded in chunks
             var fileStream = await _storageService
                 .DownloadAsync(session.TempStoragePath, ct);
+
+            _logger.LogInformation(
+                "[FINALIZE] File downloaded from MinIO. " +
+                "UploadId: {UploadId}",
+                session.UploadId);
 
             var command = new UploadDocumentCommand(
                 TenantId:         session.TenantId,
                 UploadedByUserId: session.UserId,
+                UploadedByName:   GetUserName(),
                 Title: Path.GetFileNameWithoutExtension(
                     session.FileName),
                 MimeType:         session.ContentType,
                 FileSizeBytes:    session.TotalSize,
-                FileContent:      fileStream);
+                FileContent:      fileStream,
+                DocumentId:       session.DocumentId);
 
             var result = await _mediator.Send(command, ct);
 
             if (result.IsFailure)
             {
                 _logger.LogError(
-                    "Failed to finalize upload. " +
+                    "[FINALIZE] Command failed. " +
                     "UploadId: {UploadId} " +
                     "Error: {Code} - {Description}",
                     session.UploadId,
@@ -212,24 +234,41 @@ public sealed class UploadController : ControllerBase
             else
             {
                 _logger.LogInformation(
-                    "Upload finalized successfully. " +
+                    "[FINALIZE] SUCCESS. " +
                     "UploadId: {UploadId} " +
                     "DocumentId: {DocumentId}",
                     session.UploadId,
                     result.Value.Id);
 
-                // Cleanup temp file after finalization
-                await _storageService.DeleteAsync(
-                    session.TempStoragePath, ct);
+                // Cleanup temp file
+                try
+                {
+                    await _storageService.DeleteAsync(
+                        session.TempStoragePath, ct);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex,
+                        "[FINALIZE] Failed to delete temp file. " +
+                        "TempPath: {TempPath}",
+                        session.TempStoragePath);
+                }
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex,
-                "Exception during upload finalization. " +
-                "UploadId: {UploadId}",
+                "[FINALIZE] EXCEPTION. UploadId: {UploadId}",
                 session.UploadId);
         }
+    }
+
+    private string GetUserName()
+    {
+        return User.FindFirst("full_name")?.Value
+            ?? User.FindFirst("name")?.Value
+            ?? User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value
+            ?? "Unknown";
     }
 
     private Guid GetUserId()
@@ -243,9 +282,10 @@ public sealed class UploadController : ControllerBase
 
 public sealed record InitUploadRequest
 {
-    public string FileName    { get; init; } = string.Empty;
-    public string ContentType { get; init; } = string.Empty;
-    public long   TotalSize   { get; init; }
+    public string  FileName    { get; init; } = string.Empty;
+    public string  ContentType { get; init; } = string.Empty;
+    public long    TotalSize   { get; init; }
+    public Guid?   DocumentId  { get; init; }
 }
 
 public sealed record InitUploadResponse

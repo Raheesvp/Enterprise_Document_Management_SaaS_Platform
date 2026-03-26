@@ -12,11 +12,11 @@ public sealed class UploadDocumentCommandHandler
     : IRequestHandler<UploadDocumentCommand, Result<DocumentDto>>
 {
     private readonly IDocumentRepository _documentRepo;
-    private readonly IStorageService _storageService;
+    private readonly IStorageService     _storageService;
 
     public UploadDocumentCommandHandler(
         IDocumentRepository documentRepo,
-        IStorageService storageService)
+        IStorageService     storageService)
     {
         _documentRepo   = documentRepo;
         _storageService = storageService;
@@ -26,10 +26,9 @@ public sealed class UploadDocumentCommandHandler
         UploadDocumentCommand command,
         CancellationToken cancellationToken)
     {
-        // 1. Build Value Objects
         DocumentTitle title;
-        FileSize fileSize;
-        ContentType contentType;
+        FileSize      fileSize;
+        ContentType   contentType;
 
         try
         {
@@ -42,7 +41,7 @@ public sealed class UploadDocumentCommandHandler
             {
                 return Result.Failure<DocumentDto>(
                     new Error("Document.UnsupportedType",
-                        $"The file type '{command.MimeType}' is not allowed."));
+                        $"File type '{command.MimeType}' not allowed."));
             }
         }
         catch (ArgumentException ex)
@@ -51,53 +50,65 @@ public sealed class UploadDocumentCommandHandler
                 new Error("Document.ValidationFailed", ex.Message));
         }
 
-        // 2. Generate storage path
         var documentId  = Guid.NewGuid();
         var fileName    = SanitizeFileName(command.Title);
         var storagePath = StoragePath.Create(
-            command.TenantId,
-            documentId,
-            fileName);
+            command.TenantId, documentId, fileName);
 
-        // 3. Upload file to MinIO
         await _storageService.UploadAsync(
             storagePath.Value,
             command.FileContent,
             command.MimeType,
             cancellationToken);
 
-        // 4. Create Document aggregate — starts as Uploading
-        var document = Document.Create(
-            command.TenantId,
-            command.UploadedByUserId,
-            title,
-            contentType,
-            storagePath,
-            fileSize);
+        Document document;
+        if (command.DocumentId.HasValue)
+        {
+            var existing = await _documentRepo.GetByIdAsync(
+                command.DocumentId.Value, command.TenantId, cancellationToken);
+            
+            if (existing is null || existing.TenantId != command.TenantId)
+            {
+                return Result.Failure<DocumentDto>(
+                    new Error("Document.NotFound", 
+                        $"Document with ID {command.DocumentId} not found."));
+            }
 
-        if (command.Description is not null)
-            document.UpdateDescription(command.Description);
+            existing.AddVersion(storagePath, fileSize, command.UploadedByUserId);
+            document = existing;
+            await _documentRepo.UpdateAsync(document, cancellationToken);
+        }
+        else
+        {
+            document = Document.Create(
+                command.TenantId,
+                command.UploadedByUserId,
+                command.UploadedByName,
+                title,
+                contentType,
+                storagePath,
+                fileSize);
 
-        if (command.Tags is not null)
-            document.UpdateTags(command.Tags);
+            if (command.Description is not null)
+                document.UpdateDescription(command.Description);
 
-        // 5. Advance status — file is uploaded and ready
-        // Uploading ? Processing ? Active
-        // This makes document visible in the document list
-        document.MarkAsProcessing();
-        document.MarkAsActive();
+            if (command.Tags is not null)
+                document.UpdateTags(command.Tags);
 
-        // 6. Persist to database
-        await _documentRepo.AddAsync(document, cancellationToken);
+            document.MarkAsProcessing();
+            document.MarkAsActive();
+
+            await _documentRepo.AddAsync(document, cancellationToken);
+        }
 
         return Result.Success(ToDto(document));
     }
 
     private static string SanitizeFileName(string title)
     {
-        var invalidChars = Path.GetInvalidFileNameChars();
+        var invalid = Path.GetInvalidFileNameChars();
         return string.Concat(
-            title.Select(c => invalidChars.Contains(c) ? '_' : c));
+            title.Select(c => invalid.Contains(c) ? '_' : c));
     }
 
     private static DocumentDto ToDto(Document doc)

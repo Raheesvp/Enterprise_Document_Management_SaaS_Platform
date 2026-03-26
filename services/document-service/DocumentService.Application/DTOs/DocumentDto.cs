@@ -41,9 +41,12 @@ public record DocumentSummaryDto(
     string Title,
     string Status,
     string DocumentType,
+    string MimeType,
     long FileSizeBytes,
     string FileSizeFormatted,
     int VersionCount,
+    string UploadedByUserId,
+    string UploadedByName,
     DateTime CreatedAt,
     DateTime UpdatedAt,
     string? Tags);

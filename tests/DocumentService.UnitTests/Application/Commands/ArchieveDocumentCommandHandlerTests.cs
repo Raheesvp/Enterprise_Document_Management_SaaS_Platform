@@ -19,12 +19,7 @@ public class ArchiveDocumentCommandHandlerTests
     private static Document CreateActiveDocument(
         Guid tenantId, Guid documentId)
     {
-        var doc = Document.Create(
-            tenantId,
-            Guid.NewGuid(),
-            DocumentTitle.Create("Contract.pdf"),
-            ContentType.Create("application/pdf"),
-            StoragePath.Create(tenantId, documentId, "contract.pdf"),
+        var doc = Document.Create(tenantId, Guid.NewGuid(), "Test User", DocumentTitle.Create("Contract.pdf"), ContentType.Create("application/pdf"), StoragePath.Create(tenantId, documentId, "contract.pdf"),
             FileSize.FromBytes(1024 * 1024));
 
         // Move to Active status so Archive is valid

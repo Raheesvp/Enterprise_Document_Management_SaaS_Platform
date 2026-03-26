@@ -2,10 +2,12 @@ import {
   Component,
   signal,
   inject,
+  Input,
   OnDestroy,
+  OnInit,
 } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { RouterLink, Router } from "@angular/router";
+import { RouterLink, Router, ActivatedRoute } from "@angular/router";
 import { FormsModule } from "@angular/forms";
 import { MatCardModule } from "@angular/material/card";
 import { MatButtonModule } from "@angular/material/button";
@@ -17,6 +19,8 @@ import { MatDividerModule } from "@angular/material/divider";
 import * as tus from "tus-js-client";
 import { environment } from "../../../../environments/environment";
 import { AuthService } from "../../../core/services/auth.service";
+
+
 
 interface UploadFile {
   id:           string;
@@ -57,13 +61,13 @@ type UploadStatus =
 
       <!-- Header -->
       <div class="page-header">
-        <button mat-button routerLink="/documents" class="back-btn">
+        <button mat-button (click)="goBack()" class="back-btn">
           <mat-icon>arrow_back</mat-icon>
-          Back to Documents
+          Back {{ documentId ? 'to Document' : 'to Documents' }}
         </button>
         <div>
-          <h1>Upload Documents</h1>
-          <p>Upload files with automatic chunking and resume support</p>
+          <h1>{{ documentId ? 'Upload New Version' : 'Upload Documents' }}</h1>
+          <p>{{ documentId ? 'Add a new version to the existing document' : 'Upload files with automatic chunking and resume support' }}</p>
         </div>
       </div>
 
@@ -77,7 +81,7 @@ type UploadStatus =
 
         <mat-icon class="drop-icon">cloud_upload</mat-icon>
         <h3>Drop files here or click to browse</h3>
-        <p>Supports PDF, Word, Excel, images — Max 500MB per file</p>
+        <p>Supports PDF, Word, Excel, images ï¿½ Max 500MB per file</p>
 
         <button mat-stroked-button color="primary"
           (click)="$event.stopPropagation(); fileInput.click()">
@@ -140,13 +144,13 @@ type UploadStatus =
                     <span class="file-meta">
                       {{ formatSize(f.file.size) }}
                       @if (f.status === "uploading") {
-                        · {{ f.progress }}% uploaded
+                        ï¿½ {{ f.progress }}% uploaded
                       }
                       @if (f.status === "complete") {
-                        · Completed {{ f.completedAt | date: "HH:mm:ss" }}
+                        ï¿½ Completed {{ f.completedAt | date: "HH:mm:ss" }}
                       }
                       @if (f.error) {
-                        · {{ f.error }}
+                        ï¿½ {{ f.error }}
                       }
                     </span>
 
@@ -407,13 +411,32 @@ type UploadStatus =
     }
   `],
 })
-export class UploadComponent implements OnDestroy {
+export class UploadComponent implements OnInit, OnDestroy {
+
+  @Input() documentId? :string;
+
   private authService = inject(AuthService);
   private snackBar    = inject(MatSnackBar);
   private router      = inject(Router);
+  private route       = inject(ActivatedRoute);
 
   files     = signal<UploadFile[]>([]);
   isDragOver = signal(false);
+
+  ngOnInit(): void {
+    // Read from route param if Input not provided
+    if (!this.documentId) {
+      this.documentId = this.route.snapshot.paramMap.get("documentId") || undefined;
+    }
+  }
+
+  goBack(): void {
+    if (this.documentId) {
+      this.router.navigate(['/documents', this.documentId]);
+    } else {
+      this.router.navigate(['/documents']);
+    }
+  }
 
   // -- Drag and Drop ---------------------------------------
 
@@ -529,6 +552,7 @@ export class UploadComponent implements OnDestroy {
           fileName:    file.file.name,
           contentType: file.file.type || "application/octet-stream",
           totalSize:   totalSize,
+          documentId :this.documentId || null
         }),
       }
     )
@@ -595,8 +619,16 @@ export class UploadComponent implements OnDestroy {
             `"${file.file.name}" uploaded successfully`,
             "View", { duration: 4000 })
             .onAction().subscribe(() => {
-              this.router.navigate(["/documents"]);
+              if (this.documentId) {
+                this.router.navigate(["/documents", this.documentId]);
+              } else {
+                this.router.navigate(["/documents"]);
+              }
             });
+          
+          if (this.documentId) {
+             setTimeout(() => this.router.navigate(["/documents", this.documentId]), 1500);
+          }
         } else {
           uploadNextChunk();
         }
@@ -604,7 +636,7 @@ export class UploadComponent implements OnDestroy {
       .catch(() => {
         this.updateFile(file.id, {
           status: "error",
-          error:  "Upload failed — click retry",
+          error:  "Upload failed ï¿½ click retry",
         });
       });
     };

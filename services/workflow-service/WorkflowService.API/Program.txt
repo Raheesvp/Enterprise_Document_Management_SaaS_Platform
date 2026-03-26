@@ -109,7 +109,7 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider
         .GetRequiredService<WorkflowDbContext>();
-    db.Database.Migrate(); await WorkflowService.Infrastructure.Persistence.DataSeeder.SeedAsync(db);
+    db.Database.Migrate();
 }
 
 app.UseSwagger();

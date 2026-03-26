@@ -4,10 +4,10 @@ using System.Text.Json;
 
 namespace DocumentService.Infrastructure.Upload;
 
-// UploadSession — tracks state of a chunked upload in Redis
+// UploadSession ï¿½ tracks state of a chunked upload in Redis
 //
 // Stored in Redis with TTL of 24 hours
-// If user does not resume within 24 hours — session expires
+// If user does not resume within 24 hours ï¿½ session expires
 // Chunks are cleaned up automatically
 public sealed class UploadSession
 {
@@ -15,6 +15,8 @@ public sealed class UploadSession
     public Guid TenantId { get; init; }
     public Guid UserId { get; init; }
     public string FileName { get; init; } = string.Empty;
+
+    public Guid? DocumentId { get; init; }
     public string ContentType { get; init; } = string.Empty;
     public long TotalSize { get; init; }
     public long BytesReceived { get; set; }
@@ -23,8 +25,8 @@ public sealed class UploadSession
     public bool IsComplete { get; set; }
 }
 
-// IUploadSessionStore — abstraction for upload session storage
-// Redis implementation below — swap for SQL if needed
+// IUploadSessionStore ï¿½ abstraction for upload session storage
+// Redis implementation below ï¿½ swap for SQL if needed
 public interface IUploadSessionStore
 {
     Task SaveAsync(UploadSession session, CancellationToken ct = default);
@@ -34,11 +36,11 @@ public interface IUploadSessionStore
     Task DeleteAsync(string uploadId, CancellationToken ct = default);
 }
 
-// RedisUploadSessionStore — stores upload sessions in Redis
+// RedisUploadSessionStore ï¿½ stores upload sessions in Redis
 //
 // Key pattern: upload_session:{uploadId}
-// TTL: 24 hours — session expires if not resumed
-// Serialized as JSON — human readable in Redis CLI
+// TTL: 24 hours ï¿½ session expires if not resumed
+// Serialized as JSON ï¿½ human readable in Redis CLI
 public sealed class RedisUploadSessionStore : IUploadSessionStore
 {
     private readonly IDistributedCache _cache;
@@ -108,7 +110,7 @@ public sealed class RedisUploadSessionStore : IUploadSessionStore
         var json = JsonSerializer.Serialize(session);
 
         // Refresh TTL on every progress update
-        // Upload is active — reset the 24 hour expiry
+        // Upload is active ï¿½ reset the 24 hour expiry
         await _cache.SetStringAsync(key, json, CacheOptions, ct);
 
         _logger.LogDebug(

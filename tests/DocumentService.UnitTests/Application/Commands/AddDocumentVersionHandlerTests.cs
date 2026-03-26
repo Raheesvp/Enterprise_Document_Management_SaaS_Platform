@@ -19,12 +19,7 @@ public class AddDocumentVersionCommandHandlerTests
     private static Document CreateActiveDocument(
         Guid tenantId, Guid documentId)
     {
-        var doc = Document.Create(
-            tenantId,
-            Guid.NewGuid(),
-            DocumentTitle.Create("Report.pdf"),
-            ContentType.Create("application/pdf"),
-            StoragePath.Create(tenantId, documentId, "report.pdf"),
+        var doc = Document.Create(tenantId, Guid.NewGuid(), "Test User", DocumentTitle.Create("Report.pdf"), ContentType.Create("application/pdf"), StoragePath.Create(tenantId, documentId, "report.pdf"),
             FileSize.FromBytes(1024 * 1024));
 
         doc.MarkAsProcessing();
@@ -117,12 +112,7 @@ public class AddDocumentVersionCommandHandlerTests
         var documentId = Guid.NewGuid();
 
         // Create document but do NOT move to Active
-        var document = Document.Create(
-            tenantId,
-            Guid.NewGuid(),
-            DocumentTitle.Create("Report.pdf"),
-            ContentType.Create("application/pdf"),
-            StoragePath.Create(tenantId, documentId, "report.pdf"),
+        var document = Document.Create(tenantId, Guid.NewGuid(), "Test User", DocumentTitle.Create("Report.pdf"), ContentType.Create("application/pdf"), StoragePath.Create(tenantId, documentId, "report.pdf"),
             FileSize.FromBytes(1024));
 
         _repo

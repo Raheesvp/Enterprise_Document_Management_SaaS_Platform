@@ -50,7 +50,7 @@ public sealed class GetDocumentQueryHandler
             summary.VersionCount,
             summary.VersionCount, // current version = latest count
             string.Empty,         // StoragePath not exposed in list view
-            summary.UploadedByUserId,
+            summary.UploadedByUserId.ToString(),
             summary.CreatedAt,
             summary.UpdatedAt,
             summary.Description,

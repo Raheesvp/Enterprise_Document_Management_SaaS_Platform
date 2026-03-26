@@ -14,12 +14,7 @@ public class DocumentTests
         string mimeType = "application/pdf",
         long sizeBytes = 1024 * 1024)
     {
-        return Document.Create(
-            tenantId ?? Guid.NewGuid(),
-            Guid.NewGuid(),
-            DocumentTitle.Create(title),
-            ContentType.Create(mimeType),
-            StoragePath.Create(Guid.NewGuid(), Guid.NewGuid(), title),
+        return Document.Create(tenantId ?? Guid.NewGuid(), Guid.NewGuid(), "Test User", DocumentTitle.Create(title), ContentType.Create(mimeType), StoragePath.Create(Guid.NewGuid(), Guid.NewGuid(), title),
             FileSize.FromBytes(sizeBytes));
     }
 
@@ -234,3 +229,4 @@ public class DocumentTests
         doc.UpdatedAt.Should().BeAfter(before);
     }
 }
+

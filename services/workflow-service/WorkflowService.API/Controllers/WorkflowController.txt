@@ -46,7 +46,7 @@ public sealed class WorkflowController : ControllerBase
             result.Value);
     }
 
-    [HttpGet("{id:guid}")]
+    [HttpGet("{id}")]
     public async Task<IActionResult> GetStatus(
         Guid id,
         CancellationToken ct)
@@ -60,44 +60,7 @@ public sealed class WorkflowController : ControllerBase
         return Ok(result.Value);
     }
 
-    [HttpGet("document/{documentId:guid}")]
-    public async Task<IActionResult> GetByDocumentId(
-        Guid documentId,
-        CancellationToken ct)
-    {
-        var workflow = await _repository
-            .GetByDocumentIdAsync(documentId, _tenantContext.TenantId, ct);
-
-        if (workflow is null)
-            return NotFound(new { error = "No workflow found for this document" });
-
-        return Ok(new
-        {
-            id                = workflow.Id,
-            tenantId          = workflow.TenantId,
-            documentId        = workflow.DocumentId,
-            documentTitle     = workflow.DocumentTitle,
-            status            = workflow.Status.ToString(),
-            currentStageOrder = workflow.CurrentStageOrder,
-            initiatedByUserId = workflow.InitiatedByUserId,
-            startedAt         = workflow.StartedAt,
-            completedAt       = workflow.CompletedAt,
-            stages            = workflow.Stages.Select(s => new
-            {
-                id               = s.Id,
-                stageOrder       = s.StageOrder,
-                stageName        = s.StageName,
-                assignedToUserId = s.AssignedToUserId,
-                assignedToEmail  = s.AssignedToEmail,
-                status           = s.Status.ToString(),
-                comments         = s.Comments,
-                slaDeadline      = s.SlaDeadline,
-                processedAt      = s.ProcessedAt,
-            }).ToList()
-        });
-    }
-
-    // GET /api/workflow/my - list all workflows for this tenant
+    // GET /api/workflow/my — list all workflows for this tenant
     [HttpGet("my")]
     public async Task<IActionResult> GetMyWorkflows(
         CancellationToken ct)

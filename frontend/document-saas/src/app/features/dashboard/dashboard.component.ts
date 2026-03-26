@@ -87,7 +87,7 @@ interface StatCard {
         }
       </div>
 
-      <!-- Quick Actions — Admin + Manager only -->
+      <!-- Quick Actions ï¿½ Admin + Manager only -->
       @if (authService.isManager()) {
         <div class="quick-actions">
           <h2>Quick Actions</h2>

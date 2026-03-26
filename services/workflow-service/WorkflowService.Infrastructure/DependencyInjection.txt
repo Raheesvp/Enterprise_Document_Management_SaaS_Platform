@@ -1,0 +1,98 @@
+﻿using Hangfire;
+using Hangfire.PostgreSql;
+using MassTransit;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Shared.Contracts.IntegrationEvents.Documents;
+using WorkflowService.Application.Interfaces;
+using WorkflowService.Infrastructure.Consumers;
+using WorkflowService.Infrastructure.Jobs;
+using WorkflowService.Infrastructure.Persistence;
+using WorkflowService.Infrastructure.Repositories;
+
+namespace WorkflowService.Infrastructure;
+
+public static class DependencyInjection
+{
+    public static IServiceCollection AddInfrastructure(
+        this IServiceCollection services,
+        IConfiguration configuration)
+    {
+        // PostgreSQL DbContext
+        services.AddDbContext<WorkflowDbContext>(options =>
+            options.UseNpgsql(
+                configuration.GetConnectionString("WorkflowDb"),
+                npgsqlOptions =>
+                    npgsqlOptions.EnableRetryOnFailure(
+                        maxRetryCount: 5,
+                        maxRetryDelay: TimeSpan.FromSeconds(30),
+                        errorCodesToAdd: null)));
+
+        // Repositories
+        services.AddScoped<IWorkflowRepository,
+            WorkflowRepository>();
+
+        // SLA Job
+        services.AddScoped<SlaCheckerJob>();
+
+        // MassTransit + RabbitMQ
+        services.AddMassTransit(x =>
+        {
+            // Consumer — listens for document uploads
+            x.AddConsumer<DocumentUploadedConsumer>();
+
+            x.UsingRabbitMq((context, cfg) =>
+            {
+                var host     = configuration[
+                               "RabbitMqSettings:Host"]
+                               ?? "localhost";
+                var port     = ushort.Parse(
+                               configuration[
+                                   "RabbitMqSettings:Port"]
+                               ?? "5672");
+                var username = configuration[
+                               "RabbitMqSettings:Username"]
+                               ?? "saasuser";
+                var password = configuration[
+                               "RabbitMqSettings:Password"]
+                               ?? "SaaS@Rabbit2024!";
+                var vhost    = configuration[
+                               "RabbitMqSettings:VirtualHost"]
+                               ?? "documentsaas";
+
+                cfg.Host(host, port, vhost, h =>
+                {
+                    h.Username(username);
+                    h.Password(password);
+                });
+
+                cfg.UseMessageRetry(r =>
+                    r.Exponential(
+                        retryLimit: 3,
+                        minInterval: TimeSpan.FromSeconds(1),
+                        maxInterval: TimeSpan.FromSeconds(10),
+                        intervalDelta: TimeSpan.FromSeconds(2)));
+
+                cfg.ConfigureEndpoints(context);
+            });
+        });
+
+        // Hangfire
+        services.AddHangfire(config => config
+            .SetDataCompatibilityLevel(
+                CompatibilityLevel.Version_180)
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UsePostgreSqlStorage(
+                configuration.GetConnectionString("WorkflowDb")));
+
+        services.AddHangfireServer(options =>
+        {
+            options.WorkerCount = 2;
+            options.Queues      = new[] { "sla", "default" };
+        });
+
+        return services;
+    }
+}

@@ -12,6 +12,7 @@ public sealed record DocumentCreatedEvent(
     Guid TenantId,
     Guid UploadedByUserId,
     string Title,
+    string MimeType,
     string StoragePath,
     DateTime OccuredOn,
     DateTime CreatedAt) : IDomainEvent;

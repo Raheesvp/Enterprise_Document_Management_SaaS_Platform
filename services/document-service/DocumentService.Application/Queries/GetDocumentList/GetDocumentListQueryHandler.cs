@@ -41,9 +41,12 @@ public sealed class GetDocumentListQueryHandler
                 s.Title,
                 s.Status,
                 s.DocumentType,
+                s.MimeType,
                 s.FileSizeBytes,
                 FormatFileSize(s.FileSizeBytes),
                 s.VersionCount,
+                s.UploadedByUserId.ToString(),
+                s.UploadedByName,
                 s.CreatedAt,
                 s.UpdatedAt,
                 s.Tags))

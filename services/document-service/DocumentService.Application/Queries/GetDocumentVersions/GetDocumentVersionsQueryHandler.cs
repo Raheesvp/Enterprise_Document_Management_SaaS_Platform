@@ -43,7 +43,7 @@ public sealed class GetDocumentVersionsQueryHandler
                 FormatFileSize(v.FileSizeBytes),
                 v.StoragePath,
                 v.IsCurrentVersion,
-                v.UploadedByUserId,
+                v.UploadedByUserId.ToString(),
                 v.CreatedAt,
                 v.ExtractedText,
                 v.PageCount))

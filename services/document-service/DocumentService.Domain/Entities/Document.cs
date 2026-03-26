@@ -5,54 +5,48 @@ using DocumentService.Domain.ValueObjects;
 
 namespace DocumentService.Domain.Entities;
 
-// Document is the central Aggregate Root of this entire service
-// All document operations flow through this class
-//
-// Key design decisions:
-// 1. Status transitions are enforced — cannot jump from Uploading to Approved
-// 2. Versions are a private list — only AddVersion() can add
-// 3. Factory method Create() is the only way to instantiate
-// 4. Domain events raised for every significant state change
-// 5. TenantId on aggregate ensures all queries are tenant-scoped
 public sealed class Document : AggregateRoot<Guid>
 {
     private readonly List<DocumentVersion> _versions = new();
 
-    private Document() { } // EF Core
+    private Document() { }
 
     private Document(
         Guid id,
         Guid tenantId,
         Guid uploadedByUserId,
+        string uploadedByName,
         DocumentTitle title,
         ContentType contentType,
         StoragePath storagePath,
         FileSize fileSize) : base(id)
     {
-        TenantId        = tenantId;
+        TenantId         = tenantId;
         UploadedByUserId = uploadedByUserId;
-        Title           = title;
-        ContentType     = contentType;
-        Status          = DocumentStatus.Uploading;
-        CreatedAt       = DateTime.UtcNow;
-        UpdatedAt       = DateTime.UtcNow;
+        UploadedByName   = uploadedByName;
+        Title            = title;
+        ContentType      = contentType;
+        Status           = DocumentStatus.Uploading;
+        CreatedAt        = DateTime.UtcNow;
+        UpdatedAt        = DateTime.UtcNow;
 
-        // First version is created with the document
         var firstVersion = new DocumentVersion(
-            id, 1, storagePath, fileSize, uploadedByUserId.ToString());
+            id, 1, storagePath, fileSize,
+            uploadedByUserId.ToString());
         firstVersion.IsCurrentVersion = true;
         _versions.Add(firstVersion);
     }
 
-    public Guid          TenantId          { get; private set; }
-    public Guid          UploadedByUserId  { get; private set; }
-    public DocumentTitle Title             { get; private set; } = null!;
-    public ContentType   ContentType       { get; private set; } = null!;
+    public Guid           TenantId         { get; private set; }
+    public Guid           UploadedByUserId { get; private set; }
+    public string         UploadedByName   { get; private set; } = string.Empty;
+    public DocumentTitle  Title            { get; private set; } = null!;
+    public ContentType    ContentType      { get; private set; } = null!;
     public DocumentStatus Status           { get; private set; }
-    public DateTime      CreatedAt         { get; private set; }
-    public DateTime      UpdatedAt         { get; private set; }
-    public string?       Description       { get; private set; }
-    public string?       Tags              { get; private set; }
+    public DateTime       CreatedAt        { get; private set; }
+    public DateTime       UpdatedAt        { get; private set; }
+    public string?        Description      { get; private set; }
+    public string?        Tags             { get; private set; }
 
     public IReadOnlyCollection<DocumentVersion> Versions
         => _versions.AsReadOnly();
@@ -60,10 +54,10 @@ public sealed class Document : AggregateRoot<Guid>
     public DocumentVersion? CurrentVersion
         => _versions.FirstOrDefault(v => v.IsCurrentVersion);
 
-    // ── Factory Method ─────────────────────────────────────────
     public static Document Create(
         Guid tenantId,
         Guid uploadedByUserId,
+        string uploadedByName,
         DocumentTitle title,
         ContentType contentType,
         StoragePath storagePath,
@@ -73,12 +67,12 @@ public sealed class Document : AggregateRoot<Guid>
             Guid.NewGuid(),
             tenantId,
             uploadedByUserId,
+            uploadedByName,
             title,
             contentType,
             storagePath,
             fileSize);
 
-        // Raise domain event — dispatched after DB commit
         var occurredOn = DateTime.UtcNow;
         document.RaiseDomainEvent(new DocumentCreatedEvent(
             Guid.NewGuid(),
@@ -86,6 +80,7 @@ public sealed class Document : AggregateRoot<Guid>
             tenantId,
             uploadedByUserId,
             title.Value,
+            contentType.MimeType,
             storagePath.Value,
             occurredOn,
             document.CreatedAt));
@@ -93,9 +88,6 @@ public sealed class Document : AggregateRoot<Guid>
         return document;
     }
 
-    // ── Status Transitions ─────────────────────────────────────
-    // Only valid transitions are allowed
-    // Trying to Approve an Uploading document throws
     public void MarkAsProcessing()
     {
         EnsureStatus(DocumentStatus.Uploading);
@@ -129,50 +121,39 @@ public sealed class Document : AggregateRoot<Guid>
     public void Archive()
     {
         if (Status == DocumentStatus.Archived)
-            throw new InvalidOperationException("Document is already archived");
+            throw new InvalidOperationException(
+                "Document is already archived");
         ChangeStatus(DocumentStatus.Archived);
     }
 
-    // ── Version Management ─────────────────────────────────────
     public void AddVersion(
         StoragePath storagePath,
         FileSize fileSize,
         Guid uploadedByUserId)
     {
-        // Only Active documents can have new versions uploaded
         if (Status != DocumentStatus.Active)
             throw new InvalidOperationException(
-                $"Cannot add version to document with status {Status}");
+                $"Cannot add version. Status: {Status}");
 
-        // Mark all existing versions as not current
         foreach (var v in _versions)
             v.IsCurrentVersion = false;
 
-        var newVersionNumber = _versions.Count + 1;
         var newVersion = new DocumentVersion(
-            Id,
-            newVersionNumber,
-            storagePath,
-            fileSize,
+            Id, _versions.Count + 1,
+            storagePath, fileSize,
             uploadedByUserId.ToString());
 
         newVersion.IsCurrentVersion = true;
         _versions.Add(newVersion);
-
         UpdatedAt = DateTime.UtcNow;
 
-        var occurredOn = DateTime.UtcNow;
         RaiseDomainEvent(new DocumentVersionAddedEvent(
-            Guid.NewGuid(),
-            Id,
-            TenantId,
-            newVersionNumber,
+            Guid.NewGuid(), Id, TenantId,
+            newVersion.VersionNumber,
             storagePath.Value,
-            occurredOn,
-            occurredOn));
+            DateTime.UtcNow, DateTime.UtcNow));
     }
 
-    // ── Metadata Updates ───────────────────────────────────────
     public void UpdateTitle(DocumentTitle newTitle)
     {
         Title     = newTitle;
@@ -191,7 +172,6 @@ public sealed class Document : AggregateRoot<Guid>
         UpdatedAt = DateTime.UtcNow;
     }
 
-    // ── Private Helpers ────────────────────────────────────────
     private void ChangeStatus(DocumentStatus newStatus)
     {
         var oldStatus = Status;
@@ -199,19 +179,15 @@ public sealed class Document : AggregateRoot<Guid>
         UpdatedAt = DateTime.UtcNow;
 
         RaiseDomainEvent(new DocumentStatusChangedEvent(
-            Guid.NewGuid(),
-            Id,
-            TenantId,
-            oldStatus,
-            newStatus,
-            UpdatedAt,
-            UpdatedAt));
+            Guid.NewGuid(), Id, TenantId,
+            oldStatus, newStatus,
+            UpdatedAt, UpdatedAt));
     }
 
     private void EnsureStatus(DocumentStatus expected)
     {
         if (Status != expected)
             throw new InvalidOperationException(
-                $"Document must be in {expected} status. Current: {Status}");
+                $"Document must be {expected}. Current: {Status}");
     }
 }

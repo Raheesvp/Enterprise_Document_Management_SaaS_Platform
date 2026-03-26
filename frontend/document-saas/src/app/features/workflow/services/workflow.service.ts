@@ -17,6 +17,11 @@ export class WorkflowService {
       `${this.base}/${id}`);
   }
 
+  getWorkflowByDocumentId(documentId: string): Observable<WorkflowInstance> {
+    return this.http.get<WorkflowInstance>(
+      `${this.base}/document/${documentId}`);
+  }
+
   approveStage(
     workflowId: string,
     comments: string
