@@ -28,6 +28,7 @@ public sealed class RejectStageCommandHandler
         RejectStageCommand request,
         CancellationToken cancellationToken)
     {
+        // 1. Fetch the entity (using 'instance' as the name)
         var instance = await _repository.GetByIdAsync(
             request.WorkflowInstanceId,
             request.TenantId,
@@ -47,21 +48,24 @@ public sealed class RejectStageCommandHandler
             return Result.Failure<WorkflowInstanceDto>(
                 WorkflowErrors.Stage.NotAssignedToUser);
 
-        // Use state machine for safe transition
+        // 2. Transition State
         var stateMachine = new WorkflowStateMachine(instance);
         stateMachine.Reject(request.UserId, request.Comments);
 
         await _repository.UpdateAsync(instance, cancellationToken);
 
-        await _publishEndpoint.Publish(new WorkflowRejectedEvent
-        {
-            TenantId           = instance.TenantId,
-            WorkflowInstanceId = instance.Id,
-            DocumentId         = instance.DocumentId,
-            DocumentTitle      = instance.DocumentTitle,
-            Reason             = request.Comments ?? "No reason provided"
-        }, cancellationToken);
+        // 3. Publish Event (FIXED: Changed 'workflow' to 'instance')
+        await _publishEndpoint.Publish(new WorkflowRejectedEvent(
+            Guid.NewGuid(),           // EventId
+            DateTime.UtcNow,          // OccurredOn
+            instance.TenantId,        // Changed from workflow to instance
+            instance.Id,              // Changed from workflow to instance
+            instance.DocumentId,      // Changed from workflow to instance
+            instance.DocumentTitle,   // Changed from workflow to instance
+            request.Comments ?? "No reason provided"
+        ), cancellationToken);
 
+        // 4. Return the DTO
         return Result.Success(new WorkflowInstanceDto(
             instance.Id,
             instance.TenantId,
@@ -72,9 +76,14 @@ public sealed class RejectStageCommandHandler
             instance.StartedAt,
             instance.CompletedAt,
             instance.Stages.Select(s => new WorkflowStageDto(
-                s.Id, s.StageOrder, s.StageName,
-                s.AssignedToUserId, s.AssignedToEmail,
-                s.Status.ToString(), s.Comments,
-                s.SlaDeadline, s.ProcessedAt)).ToList()));
+                s.Id,
+                s.StageOrder,
+                s.StageName,
+                s.AssignedToUserId,
+                s.AssignedToEmail,
+                s.Status.ToString(),
+                s.Comments,
+                s.SlaDeadline,
+                s.ProcessedAt)).ToList()));
     }
 }

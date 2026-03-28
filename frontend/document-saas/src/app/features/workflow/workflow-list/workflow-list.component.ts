@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   OnInit,
   signal,
@@ -86,6 +86,9 @@ import { AuthService } from "../../../core/services/auth.service";
             </mat-card-header>
 
             <mat-card-content>
+              <p class="document-name">
+                Uploaded Document: {{ wf.documentTitle }}
+              </p>
               <div class="stage-progress">
                 @for (stage of wf.stages; track stage.id) {
                   <div class="stage-dot"
@@ -97,7 +100,7 @@ import { AuthService } from "../../../core/services/auth.service";
               <p class="stage-info">
                 Stage {{ wf.currentStageOrder }}
                 of {{ wf.stages.length }}
-                � {{ getCurrentStageName(wf) }}
+                — {{ getCurrentStageName(wf) }}
               </p>
               <p class="date-info">
                 Started: {{ wf.startedAt | date: "dd MMM yyyy" }}
@@ -238,6 +241,13 @@ import { AuthService } from "../../../core/services/auth.service";
       gap: 6px;
       margin-bottom: 8px;
     }
+    .document-name {
+      font-size: 13px;
+      color: #334155;
+      font-weight: 500;
+      margin: 0 0 10px;
+      word-break: break-word;
+    }
     .stage-dot {
       width: 12px;
       height: 12px;
@@ -322,3 +332,4 @@ export class WorkflowListComponent implements OnInit {
     return stage?.assignedToUserId === userId;
   }
 }
+

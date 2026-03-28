@@ -17,6 +17,7 @@ public sealed class WorkflowInstance : AggregateRoot<Guid>
     public Guid InitiatedByUserId { get; private set; }
     public DateTime StartedAt { get; private set; }
     public DateTime? CompletedAt { get; private set; }
+    
     public IReadOnlyList<WorkflowStage> Stages
         => _stages.AsReadOnly();
 
@@ -33,14 +34,14 @@ public sealed class WorkflowInstance : AggregateRoot<Guid>
     {
         return new WorkflowInstance(Guid.NewGuid())
         {
-            TenantId             = tenantId,
-            DocumentId           = documentId,
+            TenantId = tenantId,
+            DocumentId = documentId,
             WorkflowDefinitionId = workflowDefinitionId,
-            DocumentTitle        = documentTitle,
-            Status               = WorkflowStatus.NotStarted,
-            CurrentStageOrder    = 0,
-            InitiatedByUserId    = initiatedByUserId,
-            StartedAt            = DateTime.UtcNow
+            DocumentTitle = documentTitle,
+            Status = WorkflowStatus.NotStarted,
+            CurrentStageOrder = 0,
+            InitiatedByUserId = initiatedByUserId,
+            StartedAt = DateTime.UtcNow
         };
     }
 
@@ -50,13 +51,14 @@ public sealed class WorkflowInstance : AggregateRoot<Guid>
         Guid initiatedByUserId)
     {
         WorkflowDefinitionId = workflowDefinitionId;
-        DocumentTitle        = documentTitle;
-        InitiatedByUserId    = initiatedByUserId;
-        Status               = WorkflowStatus.NotStarted;
-        CurrentStageOrder    = 0;
-        StartedAt            = DateTime.UtcNow;
-        CompletedAt          = null;
+        DocumentTitle = documentTitle;
+        InitiatedByUserId = initiatedByUserId;
+        Status = WorkflowStatus.NotStarted;
+        CurrentStageOrder = 0;
+        StartedAt = DateTime.UtcNow;
+        CompletedAt = null;
         
+        // Clear the internal list to allow fresh stage assignments
         _stages.Clear();
     }
 
@@ -65,11 +67,12 @@ public sealed class WorkflowInstance : AggregateRoot<Guid>
 
     public void Start()
     {
-        Status            = WorkflowStatus.InProgress;
+        Status = WorkflowStatus.InProgress;
         CurrentStageOrder = 1;
 
         var firstStage = _stages
             .FirstOrDefault(s => s.StageOrder == 1);
+        
         firstStage?.Start();
     }
 
@@ -88,11 +91,16 @@ public sealed class WorkflowInstance : AggregateRoot<Guid>
 
         if (nextStage is null)
         {
-            Status      = WorkflowStatus.Approved;
+            Status = WorkflowStatus.Approved;
             CompletedAt = DateTime.UtcNow;
             
             RaiseDomainEvent(new WorkflowCompletedDomainEvent(
-                Guid.NewGuid(), DateTime.UtcNow, Id, TenantId, DocumentId, DocumentTitle));
+                Guid.NewGuid(), 
+                DateTime.UtcNow, 
+                Id, 
+                TenantId, 
+                DocumentId, 
+                DocumentTitle));
                 
             return true;
         }
@@ -109,11 +117,18 @@ public sealed class WorkflowInstance : AggregateRoot<Guid>
         var currentStage = GetCurrentStage();
         currentStage?.Reject(comments);
 
-        Status      = WorkflowStatus.Rejected;
+        Status = WorkflowStatus.Rejected;
         CompletedAt = DateTime.UtcNow;
-        
+
+        // Ensure WorkflowRejectedDomainEvent exists in WorkflowService.Domain.Events
         RaiseDomainEvent(new WorkflowRejectedDomainEvent(
-            Guid.NewGuid(), DateTime.UtcNow, Id, TenantId, DocumentId, DocumentTitle, comments ?? "No reason provided"));
+            Guid.NewGuid(),
+            DateTime.UtcNow,
+            Id,           // WorkflowInstanceId
+            TenantId,
+            DocumentId,
+            DocumentTitle,
+            comments ?? "No reason provided"));
     }
 
     public void EscalateCurrentStage()
@@ -125,7 +140,7 @@ public sealed class WorkflowInstance : AggregateRoot<Guid>
 
     public void Cancel()
     {
-        Status      = WorkflowStatus.Cancelled;
+        Status = WorkflowStatus.Cancelled;
         CompletedAt = DateTime.UtcNow;
     }
 

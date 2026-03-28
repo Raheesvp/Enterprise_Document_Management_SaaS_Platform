@@ -192,54 +192,49 @@ import { PreviewDialogComponent } from "../shared/components/preview-dialog/prev
               </td>
             </ng-container>
 
-            <!-- Actions Column -->
-            <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef></th>
-              <td mat-cell *matCellDef="let doc">
-                <button mat-icon-button
-                  [matMenuTriggerFor]="docMenu"
-                  matTooltip="Actions"
-                  (click)="$event.stopPropagation()">
-                  <mat-icon>more_vert</mat-icon>
-                </button>
-                <mat-menu #docMenu="matMenu">
-                  <button mat-menu-item
-                    [routerLink]="['/documents', doc.id]">
-                    <mat-icon>visibility</mat-icon>
-                    View Details
-                  </button>
-                  
-                  <!-- Admin/Manager Actions -->
-                  @if (authService.isManager()) {
-                    <button mat-menu-item (click)="previewDocument(doc)">
-                      <mat-icon>preview</mat-icon>
-                      Preview
-                    </button>
-                    <button mat-menu-item (click)="downloadDocument(doc)">
-                      <mat-icon>download</mat-icon>
-                      Download
-                    </button>
-                    <button mat-menu-item (click)="updateStatus(doc)">
-                      <mat-icon>rule</mat-icon>
-                      Process Workflow
-                    </button>
-                  }
+          <ng-container matColumnDef="actions">
+  <th mat-header-cell *matHeaderCellDef></th>
+  <td mat-cell *matCellDef="let doc">
+    <button mat-icon-button
+      [matMenuTriggerFor]="docMenu"
+      matTooltip="Actions"
+      (click)="$event.stopPropagation()"> <mat-icon>more_vert</mat-icon>
+    </button>
 
-                  <button mat-menu-item
-                    [routerLink]="['/workflow']">
-                    <mat-icon>account_tree</mat-icon>
-                    View History
-                  </button>
-                  @if (doc.status !== "Archived") {
-                    <button mat-menu-item
-                      (click)="archiveDocument(doc)">
-                      <mat-icon>archive</mat-icon>
-                      Archive
-                    </button>
-                  }
-                </mat-menu>
-              </td>
-            </ng-container>
+    <mat-menu #docMenu="matMenu">
+      <button mat-menu-item [routerLink]="['/documents', doc.id]">
+        <mat-icon>visibility</mat-icon>
+        View Details
+      </button>
+
+      @if (authService.isManager()) {
+        <button mat-menu-item (click)="previewDocument(doc); $event.stopPropagation()">
+          <mat-icon>preview</mat-icon>
+          Preview
+        </button>
+        <button mat-menu-item (click)="downloadDocument(doc); $event.stopPropagation()">
+          <mat-icon>download</mat-icon>
+          Download
+        </button>
+        <button mat-menu-item (click)="updateStatus(doc); $event.stopPropagation()">
+          <mat-icon>rule</mat-icon>
+          Process Workflow
+        </button>
+      }
+
+      <button mat-menu-item [routerLink]="['/workflow']">
+        <mat-icon>account_tree</mat-icon>
+        View History
+      </button>
+
+      @if (doc.status !== "Archived") {
+        <button mat-menu-item (click)="archiveDocument(doc); $event.stopPropagation()">
+          <mat-icon>archive</mat-icon>
+          Archive
+        </button>
+      }
+    </mat-menu> </td>
+</ng-container>
 
             <tr mat-header-row
               *matHeaderRowDef="displayedColumns">
@@ -531,22 +526,22 @@ export class DocumentListComponent implements OnInit {
     });
   }
 
-  downloadDocument(doc: Document): void {
-    this.docService.downloadDocument(doc.id).subscribe({
-      next: (blob: Blob) => {
-        this.docService.saveBlobAsFile(
-          blob,
-          this.docService.buildDownloadFileName(
-            doc.title,
-            doc.mimeType
-          )
-        );
-      },
-      error: () => {
-        this.snackBar.open("Failed to download document", "Close", { duration: 3000 });
-      }
-    });
+downloadDocument(doc: Document): void {
+  // 1. Check if the document has a direct download URL
+  if (!doc.downloadUrl) {
+    this.snackBar.open("Download URL not available", "Close", { duration: 3000 });
+    return;
   }
+
+  // 2. Optional: Show a brief feedback message
+  this.snackBar.open(`Downloading ${doc.title}...`, 'Close', { duration: 2000 });
+
+  // 3. Use the service helper to trigger the browser download
+  this.docService.downloadFromUrl(
+    doc.downloadUrl,
+    this.docService.buildDownloadFileName(doc.title, doc.mimeType)
+  );
+}
 
   updateStatus(doc: Document): void {
     this.workflowService.getWorkflowByDocumentId(doc.id).subscribe({
@@ -570,13 +565,17 @@ export class DocumentListComponent implements OnInit {
       ?? status;
   }
 
-  getTypeColor(mimeType: string): string {
-    const colors: Record<string, string> = {
-      "application/pdf":   "#DC2626",
-      "image/jpeg":        "#2563EB",
-      "image/png":         "#2563EB",
-      "text/plain":        "#64748B",
-    };
-    return colors[mimeType] ?? "#7C3AED";
-  }
+private readonly MIME_TYPE_COLORS: Record<string, string> = {
+  "application/pdf": "#DC2626",
+  "image/jpeg": "#2563EB",
+  "image/png": "#2563EB",
+  "text/plain": "#64748B",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "#2B579A",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "#217346",
+};
+
+getTypeColor(mimeType: string): string {
+  return this.MIME_TYPE_COLORS[mimeType] ?? "#7C3AED";
+}
+
 }

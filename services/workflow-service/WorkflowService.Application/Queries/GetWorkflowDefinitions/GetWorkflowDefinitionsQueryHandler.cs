@@ -29,6 +29,7 @@ public sealed class GetWorkflowDefinitionsQueryHandler
                 d.Id,
                 d.TenantId,
                 d.Name,
+            
                 d.Description,
                 d.IsActive,
                 d.CreatedAt,

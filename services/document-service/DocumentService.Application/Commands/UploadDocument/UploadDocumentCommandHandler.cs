@@ -3,7 +3,9 @@ using DocumentService.Application.Interfaces;
 using DocumentService.Domain.Entities;
 using DocumentService.Domain.Repositories;
 using DocumentService.Domain.ValueObjects;
+using MassTransit;
 using MediatR;
+using Shared.Contracts.IntegrationEvents.Documents;
 using Shared.Domain.Common;
 
 namespace DocumentService.Application.Commands.UploadDocument;
@@ -14,12 +16,16 @@ public sealed class UploadDocumentCommandHandler
     private readonly IDocumentRepository _documentRepo;
     private readonly IStorageService     _storageService;
 
+    private readonly IPublishEndpoint _publishEndpoint;
+
     public UploadDocumentCommandHandler(
         IDocumentRepository documentRepo,
-        IStorageService     storageService)
+        IStorageService     storageService,
+        IPublishEndpoint    publishEndpoint )
     {
         _documentRepo   = documentRepo;
         _storageService = storageService;
+        _publishEndpoint = publishEndpoint;
     }
 
     public async Task<Result<DocumentDto>> Handle(
@@ -113,9 +119,17 @@ public sealed class UploadDocumentCommandHandler
             }
         }
 
-        return Result.Success(ToDto(document));
-    }
+                await _publishEndpoint.Publish(new DocumentUploadEvent
+        {
+            DocumentId = document.Id,
+            TenantId = document.TenantId,
+            Title = document.Title.Value,
+            UploadedByUserId = document.UploadedByUserId
+        }, cancellationToken); // Added missing semicolon here
 
+        return Result.Success(ToDto(document));
+            }
+ 
     private static string SanitizeFileName(string title)
     {
         var invalid = Path.GetInvalidFileNameChars();

@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component,
   OnInit,
   signal,
@@ -70,6 +70,9 @@ import {
               <div class="wf-header">
                 <div>
                   <h1>{{ workflow()!.documentTitle }}</h1>
+                  <p class="document-name">
+                    Uploaded Document: {{ workflow()!.documentTitle }}
+                  </p>
                   <span class="status-badge"
                     [style.background]="getStatusColor(workflow()!.status) + '20'"
                     [style.color]="getStatusColor(workflow()!.status)">
@@ -164,7 +167,7 @@ import {
             </mat-card-content>
           </mat-card>
 
-          <!-- Action Card � only shown if current user can act -->
+          <!-- Action Card ï¿½ only shown if current user can act -->
           @if (canApprove()) {
             <mat-card class="action-card">
               <mat-card-header>
@@ -243,6 +246,12 @@ import {
       font-weight: 700;
       color: #1E293B;
       margin: 0 0 8px;
+    }
+    .document-name {
+      margin: 0 0 8px;
+      font-size: 13px;
+      color: #475569;
+      font-weight: 500;
     }
     .status-badge {
       display: inline-block;
@@ -473,3 +482,4 @@ export class WorkflowDetailComponent implements OnInit {
     return StageStatusColors[status as StageStatus] ?? "#94A3B8";
   }
 }
+

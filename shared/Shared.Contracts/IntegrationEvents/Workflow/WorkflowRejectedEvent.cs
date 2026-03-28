@@ -1,12 +1,14 @@
 namespace Shared.Contracts.IntegrationEvents.Workflow;
 
-public record WorkflowRejectedEvent
-{
-    public Guid EventId { get; init; } = Guid.NewGuid();
-    public DateTime OccurredOn { get; init; } = DateTime.UtcNow;
-    public Guid TenantId { get; init; }
-    public Guid WorkflowInstanceId { get; init; }
-    public Guid DocumentId { get; init; }
-    public string DocumentTitle { get; init; } = string.Empty;
-    public string Reason { get; init; } = string.Empty;
-}
+/// <summary>
+/// Integration Event published when a workflow is rejected.
+/// This is a positional record to support easy instantiation and immutability.
+/// </summary>
+public sealed record WorkflowRejectedEvent(
+    Guid EventId,
+    DateTime OccurredOn,
+    Guid TenantId,
+    Guid WorkflowInstanceId,
+    Guid DocumentId,
+    string DocumentTitle,
+    string Reason);

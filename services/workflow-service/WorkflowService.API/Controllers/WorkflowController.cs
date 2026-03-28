@@ -102,10 +102,13 @@ public sealed class WorkflowController : ControllerBase
     public async Task<IActionResult> GetMyWorkflows(
         CancellationToken ct)
     {
-        var workflows = await _repository
-            .GetByTenantAsync(_tenantContext.TenantId, ct);
+        var userId = GetUserId(); // Use your existing helper
+    var allWorkflows = await _repository.GetByTenantAsync(_tenantContext.TenantId, ct);
+    
+    // Filter by the user who initiated it
+    var myWorkflows = allWorkflows.Where(w => w.InitiatedByUserId == userId);
 
-        var dtos = workflows.Select(w => new
+        var dtos = myWorkflows.Select(w => new
         {
             id                = w.Id,
             tenantId          = w.TenantId,

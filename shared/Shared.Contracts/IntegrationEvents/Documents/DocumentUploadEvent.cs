@@ -8,6 +8,8 @@ public record DocumentUploadEvent
 
     public Guid TenantId {get;init;}
 
+    public string Title {get;init;} = string.Empty;
+
     public Guid DocumentId {get;init;}
 
     public Guid UploadedByUserId {get;init;}
