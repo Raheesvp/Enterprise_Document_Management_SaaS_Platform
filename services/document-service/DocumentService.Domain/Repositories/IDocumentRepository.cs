@@ -21,6 +21,11 @@ public interface IDocumentRepository
         Guid tenantId,
         CancellationToken ct = default);
 
+    Task<Document?> GetByTitleAsync(
+        string title,
+        Guid tenantId,
+        CancellationToken ct = default);
+
     Task AddAsync(
         Document document,
         CancellationToken ct = default);

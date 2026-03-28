@@ -18,7 +18,8 @@ public record DocumentDto(
     DateTime CreatedAt,
     DateTime UpdatedAt,
     string? Description,
-    string? Tags);
+    string? Tags,
+    string? DownloadUrl = null);
 
 // DocumentVersionDto — single version detail
 // Returned by: AddDocumentVersion, GetDocumentVersions
@@ -32,7 +33,8 @@ public record DocumentVersionDto(
     string UploadedByUserId,
     DateTime CreatedAt,
     string? ExtractedText,
-    int? PageCount);
+    int? PageCount,
+    string? DownloadUrl = null);
 
 // DocumentSummaryDto — lightweight for list views
 // Returned by: GetDocumentList
@@ -49,7 +51,8 @@ public record DocumentSummaryDto(
     string UploadedByName,
     DateTime CreatedAt,
     DateTime UpdatedAt,
-    string? Tags);
+    string? Tags,
+    string? DownloadUrl = null);
 
 // DocumentListDto — paged list response
 // Returned by: GetDocumentList

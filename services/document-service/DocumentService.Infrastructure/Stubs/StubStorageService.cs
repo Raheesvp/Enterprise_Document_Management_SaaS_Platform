@@ -16,6 +16,6 @@ public sealed class StubStorageService : IStorageService
     public Task<bool> ExistsAsync(string path, CancellationToken ct = default)
         => Task.FromResult(false);
 
-    public string GetPublicUrl(string path)
-        => $"http://localhost:9000/{path}";
+    public Task<string> GetPresignedUrlAsync(string path, string? contentType = null, int expiryMinutes = 30)
+        => Task.FromResult($"http://localhost:9000/{path}?token=stub");
 }

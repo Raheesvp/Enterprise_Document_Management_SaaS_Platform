@@ -1,3 +1,4 @@
+using DocumentService.Application.Commands.AddDocumentVersion;
 using DocumentService.Application.Commands.UploadDocument;
 using DocumentService.Application.Interfaces;
 using DocumentService.Infrastructure.Upload;
@@ -208,51 +209,86 @@ public sealed class UploadController : ControllerBase
                 "UploadId: {UploadId}",
                 session.UploadId);
 
-            var command = new UploadDocumentCommand(
-                TenantId:         session.TenantId,
-                UploadedByUserId: session.UserId,
-                UploadedByName:   GetUserName(),
-                Title: Path.GetFileNameWithoutExtension(
-                    session.FileName),
-                MimeType:         session.ContentType,
-                FileSizeBytes:    session.TotalSize,
-                FileContent:      fileStream,
-                DocumentId:       session.DocumentId);
-
-            var result = await _mediator.Send(command, ct);
-
-            if (result.IsFailure)
+            if (session.DocumentId.HasValue)
             {
-                _logger.LogError(
-                    "[FINALIZE] Command failed. " +
+                var versionCommand = new AddDocumentVersionCommand(
+                    DocumentId:       session.DocumentId.Value,
+                    TenantId:         session.TenantId,
+                    UploadedByUserId: session.UserId,
+                    FileSizeBytes:    session.TotalSize,
+                    FileContent:      fileStream,
+                    MimeType:         session.ContentType);
+
+                var versionResult = await _mediator.Send(versionCommand, ct);
+
+                if (versionResult.IsFailure)
+                {
+                    _logger.LogError(
+                        "[FINALIZE] Command failed. " +
+                        "UploadId: {UploadId} " +
+                        "Error: {Code} - {Description}",
+                        session.UploadId,
+                        versionResult.Error.Code,
+                        versionResult.Error.Description);
+                    return;
+                }
+
+                _logger.LogInformation(
+                    "[FINALIZE] SUCCESS. " +
                     "UploadId: {UploadId} " +
-                    "Error: {Code} - {Description}",
+                    "DocumentId: {DocumentId} VersionId: {VersionId} VersionNumber: {VersionNumber}",
                     session.UploadId,
-                    result.Error.Code,
-                    result.Error.Description);
+                    session.DocumentId.Value,
+                    versionResult.Value.Id,
+                    versionResult.Value.VersionNumber);
             }
             else
             {
+                var command = new UploadDocumentCommand(
+                    TenantId:         session.TenantId,
+                    UploadedByUserId: session.UserId,
+                    UploadedByName:   GetUserName(),
+                    Title: Path.GetFileNameWithoutExtension(
+                        session.FileName),
+                    MimeType:         session.ContentType,
+                    FileSizeBytes:    session.TotalSize,
+                    FileContent:      fileStream,
+                    DocumentId:       null);
+
+                var result = await _mediator.Send(command, ct);
+
+                if (result.IsFailure)
+                {
+                    _logger.LogError(
+                        "[FINALIZE] Command failed. " +
+                        "UploadId: {UploadId} " +
+                        "Error: {Code} - {Description}",
+                        session.UploadId,
+                        result.Error.Code,
+                        result.Error.Description);
+                    return;
+                }
+
                 _logger.LogInformation(
                     "[FINALIZE] SUCCESS. " +
                     "UploadId: {UploadId} " +
                     "DocumentId: {DocumentId}",
                     session.UploadId,
                     result.Value.Id);
+            }
 
-                // Cleanup temp file
-                try
-                {
-                    await _storageService.DeleteAsync(
-                        session.TempStoragePath, ct);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex,
-                        "[FINALIZE] Failed to delete temp file. " +
-                        "TempPath: {TempPath}",
-                        session.TempStoragePath);
-                }
+            // Cleanup temp file
+            try
+            {
+                await _storageService.DeleteAsync(
+                    session.TempStoragePath, ct);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex,
+                    "[FINALIZE] Failed to delete temp file. " +
+                    "TempPath: {TempPath}",
+                    session.TempStoragePath);
             }
         }
         catch (Exception ex)

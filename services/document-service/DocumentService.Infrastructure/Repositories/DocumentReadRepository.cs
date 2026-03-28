@@ -28,6 +28,7 @@ public sealed class DocumentReadRepository : IDocumentReadRepository
         public string   DocumentType      { get; set; } = "";
         public string   MimeType          { get; set; } = "";
         public long     FileSizeBytes     { get; set; }
+        public string   StoragePath       { get; set; } = "";
         public int      VersionCount      { get; set; }
         public Guid   UploadedByUserId  { get; set; } 
         public string   UploadedByName    { get; set; } = string.Empty;
@@ -38,7 +39,7 @@ public sealed class DocumentReadRepository : IDocumentReadRepository
 
         public DocumentSummary ToSummary() => new(
             Id, TenantId, Title, Status, DocumentType,
-            MimeType, FileSizeBytes, VersionCount,
+            MimeType, FileSizeBytes, StoragePath, VersionCount,
           UploadedByUserId, UploadedByName,
             CreatedAt, UpdatedAt, Description, Tags);
     }
@@ -76,6 +77,7 @@ public sealed class DocumentReadRepository : IDocumentReadRepository
                 d.document_type         AS DocumentType,
                 d.mime_type             AS MimeType,
                 COALESCE(dv.file_size_bytes, 0) AS FileSizeBytes,
+                COALESCE(dv.storage_path, '') AS StoragePath,
                 COUNT(dv2.id)           AS VersionCount,
                 d.uploaded_by_user_id   AS UploadedByUserId,
                 d.uploaded_by_name      AS UploadedByName,
@@ -94,7 +96,7 @@ public sealed class DocumentReadRepository : IDocumentReadRepository
             GROUP BY
                 d.id, d.tenant_id, d.title, d.status,
                 d.document_type, d.mime_type,
-                dv.file_size_bytes, d.uploaded_by_user_id,
+                dv.file_size_bytes, dv.storage_path, d.uploaded_by_user_id,
                 d.created_at, d.updated_at,
                 d.description, d.tags";
 
@@ -174,6 +176,7 @@ public sealed class DocumentReadRepository : IDocumentReadRepository
                 d.document_type         AS DocumentType,
                 d.mime_type             AS MimeType,
                 COALESCE(dv.file_size_bytes, 0) AS FileSizeBytes,
+                COALESCE(dv.storage_path, '') AS StoragePath,
                 COUNT(dv2.id)           AS VersionCount,
                 d.uploaded_by_user_id   AS UploadedByUserId,
                 d.uploaded_by_name      AS UploadedByName,
@@ -191,7 +194,7 @@ public sealed class DocumentReadRepository : IDocumentReadRepository
             GROUP BY
                 d.id, d.tenant_id, d.title, d.status,
                 d.document_type, d.mime_type,
-                dv.file_size_bytes, d.uploaded_by_user_id,
+                dv.file_size_bytes, dv.storage_path, d.uploaded_by_user_id,
                 d.created_at, d.updated_at,
                 d.description, d.tags
             ORDER BY d.created_at DESC

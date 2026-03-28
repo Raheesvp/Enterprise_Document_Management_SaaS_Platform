@@ -1,4 +1,6 @@
+using MassTransit;
 using MediatR;
+using Shared.Contracts.IntegrationEvents.Workflow;
 using Shared.Domain.Common;
 using WorkflowService.Application.DTOs;
 using WorkflowService.Application.Interfaces;
@@ -12,10 +14,15 @@ public sealed class RejectStageCommandHandler
         Result<WorkflowInstanceDto>>
 {
     private readonly IWorkflowRepository _repository;
+    private readonly IPublishEndpoint _publishEndpoint;
 
     public RejectStageCommandHandler(
-        IWorkflowRepository repository)
-        => _repository = repository;
+        IWorkflowRepository repository,
+        IPublishEndpoint publishEndpoint)
+    {
+        _repository      = repository;
+        _publishEndpoint = publishEndpoint;
+    }
 
     public async Task<Result<WorkflowInstanceDto>> Handle(
         RejectStageCommand request,
@@ -45,6 +52,15 @@ public sealed class RejectStageCommandHandler
         stateMachine.Reject(request.UserId, request.Comments);
 
         await _repository.UpdateAsync(instance, cancellationToken);
+
+        await _publishEndpoint.Publish(new WorkflowRejectedEvent
+        {
+            TenantId           = instance.TenantId,
+            WorkflowInstanceId = instance.Id,
+            DocumentId         = instance.DocumentId,
+            DocumentTitle      = instance.DocumentTitle,
+            Reason             = request.Comments ?? "No reason provided"
+        }, cancellationToken);
 
         return Result.Success(new WorkflowInstanceDto(
             instance.Id,

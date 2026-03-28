@@ -1,0 +1,35 @@
+﻿  Determining projects to restore...
+C:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\DocumentService.Application.csproj : warning NU1903: Package 'AutoMapper' 13.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-rvv3-g6hj-g44x [C:\Projects\ProjectSaaS\services\document-service\DocumentService.API\DocumentService.API.csproj]
+  All projects are up-to-date for restore.
+C:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\DocumentService.Application.csproj : warning NU1903: Package 'AutoMapper' 13.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-rvv3-g6hj-g44x
+  Shared.Infrastructure -> C:\Projects\ProjectSaaS\shared\Shared.Infrastructure\bin\Debug\net8.0\Shared.Infrastructure.dll
+  Shared.Domain -> C:\Projects\ProjectSaaS\shared\Shared.Domain\bin\Debug\net8.0\Shared.Domain.dll
+  DocumentService.Domain -> C:\Projects\ProjectSaaS\services\document-service\DocumentService.Domain\bin\Debug\net8.0\DocumentService.Domain.dll
+  Shared.Contracts -> C:\Projects\ProjectSaaS\shared\Shared.Contracts\bin\Debug\net8.0\Shared.Contracts.dll
+  DocumentService.Application -> C:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\bin\Debug\net8.0\DocumentService.Application.dll
+C:\Projects\ProjectSaaS\services\document-service\DocumentService.Infrastructure\Stubs\StubStorageService.cs(5,42): error CS0535: 'StubStorageService' does not implement interface member 'IStorageService.GetPresignedUrlAsync(string, string?, int)' [C:\Projects\ProjectSaaS\services\document-service\DocumentService.Infrastructure\DocumentService.Infrastructure.csproj]
+
+Build FAILED.
+
+C:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\DocumentService.Application.csproj : warning NU1903: Package 'AutoMapper' 13.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-rvv3-g6hj-g44x [C:\Projects\ProjectSaaS\services\document-service\DocumentService.API\DocumentService.API.csproj]
+C:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\DocumentService.Application.csproj : warning NU1903: Package 'AutoMapper' 13.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-rvv3-g6hj-g44x
+C:\Projects\ProjectSaaS\services\document-service\DocumentService.Infrastructure\Stubs\StubStorageService.cs(5,42): error CS0535: 'StubStorageService' does not implement interface member 'IStorageService.GetPresignedUrlAsync(string, string?, int)' [C:\Projects\ProjectSaaS\services\document-service\DocumentService.Infrastructure\DocumentService.Infrastructure.csproj]
+    2 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:03.29
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Shared.Contracts -> C:\Projects\ProjectSaaS\shared\Shared.Contracts\bin\Debug\net8.0\Shared.Contracts.dll
+  Shared.Domain -> C:\Projects\ProjectSaaS\shared\Shared.Domain\bin\Debug\net8.0\Shared.Domain.dll
+C:\Projects\ProjectSaaS\services\workflow-service\WorkflowService.Domain\Events\WorkflowCompletedDomainEvent.cs(9,29): error CS0246: The type or namespace name 'IDomainEvent' could not be found (are you missing a using directive or an assembly reference?) [C:\Projects\ProjectSaaS\services\workflow-service\WorkflowService.Domain\WorkflowService.Domain.csproj]
+C:\Projects\ProjectSaaS\services\workflow-service\WorkflowService.Domain\Events\WorkflowRejectedDomainEvent.cs(10,22): error CS0246: The type or namespace name 'IDomainEvent' could not be found (are you missing a using directive or an assembly reference?) [C:\Projects\ProjectSaaS\services\workflow-service\WorkflowService.Domain\WorkflowService.Domain.csproj]
+
+Build FAILED.
+
+C:\Projects\ProjectSaaS\services\workflow-service\WorkflowService.Domain\Events\WorkflowCompletedDomainEvent.cs(9,29): error CS0246: The type or namespace name 'IDomainEvent' could not be found (are you missing a using directive or an assembly reference?) [C:\Projects\ProjectSaaS\services\workflow-service\WorkflowService.Domain\WorkflowService.Domain.csproj]
+C:\Projects\ProjectSaaS\services\workflow-service\WorkflowService.Domain\Events\WorkflowRejectedDomainEvent.cs(10,22): error CS0246: The type or namespace name 'IDomainEvent' could not be found (are you missing a using directive or an assembly reference?) [C:\Projects\ProjectSaaS\services\workflow-service\WorkflowService.Domain\WorkflowService.Domain.csproj]
+    0 Warning(s)
+    2 Error(s)
+
+Time Elapsed 00:00:02.11

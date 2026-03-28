@@ -9,6 +9,7 @@ public sealed record DocumentVersionAddedEvent(
     Guid EventId,
     Guid DocumentId,
     Guid TenantId,
+    Guid UploadedByUserId,
     int VersionNumber,
     string StoragePath,
     DateTime OccuredOn,

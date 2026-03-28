@@ -11,6 +11,9 @@ public sealed class StubDocumentRepository : IDocumentRepository
     public Task<bool> ExistsAsync(Guid id, Guid tenantId, CancellationToken ct = default)
         => Task.FromResult(false);
 
+    public Task<Document?> GetByTitleAsync(string title, Guid tenantId, CancellationToken ct = default)
+        => Task.FromResult<Document?>(null);
+
     public Task AddAsync(Document document, CancellationToken ct = default)
         => Task.CompletedTask;
 

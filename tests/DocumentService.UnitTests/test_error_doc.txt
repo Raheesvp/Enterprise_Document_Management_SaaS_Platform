@@ -1,0 +1,42 @@
+﻿  Determining projects to restore...
+c:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\DocumentService.Application.csproj : warning NU1903: Package 'AutoMapper' 13.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-rvv3-g6hj-g44x [c:\Projects\ProjectSaaS\tests\DocumentService.UnitTests\DocumentService.UnitTests.csproj]
+  Restored c:\Projects\ProjectSaaS\shared\Shared.Domain\Shared.Domain.csproj (in 498 ms).
+  Restored c:\Projects\ProjectSaaS\shared\Shared.Contracts\Shared.Contracts.csproj (in 497 ms).
+  Restored c:\Projects\ProjectSaaS\services\document-service\DocumentService.Domain\DocumentService.Domain.csproj (in 498 ms).
+  Restored c:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\DocumentService.Application.csproj (in 498 ms).
+  Restored c:\Projects\ProjectSaaS\tests\DocumentService.UnitTests\DocumentService.UnitTests.csproj (in 535 ms).
+c:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\DocumentService.Application.csproj : warning NU1903: Package 'AutoMapper' 13.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-rvv3-g6hj-g44x
+  Shared.Contracts -> c:\Projects\ProjectSaaS\shared\Shared.Contracts\bin\Debug\net8.0\Shared.Contracts.dll
+  Shared.Domain -> c:\Projects\ProjectSaaS\shared\Shared.Domain\bin\Debug\net8.0\Shared.Domain.dll
+  DocumentService.Domain -> c:\Projects\ProjectSaaS\services\document-service\DocumentService.Domain\bin\Debug\net8.0\DocumentService.Domain.dll
+  DocumentService.Application -> c:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\bin\Debug\net8.0\DocumentService.Application.dll
+  DocumentService.UnitTests -> c:\Projects\ProjectSaaS\tests\DocumentService.UnitTests\bin\Debug\net9.0\DocumentService.UnitTests.dll
+Test run for c:\Projects\ProjectSaaS\tests\DocumentService.UnitTests\bin\Debug\net9.0\DocumentService.UnitTests.dll (.NETCoreApp,Version=v9.0)
+VSTest version 17.14.1 (x64)
+
+Starting test execution, please wait...
+A total of 1 test files matched the specified pattern.
+  Failed DocumentService.UnitTests.Application.Commands.UploadDocumentCommandHandlerTests.Handle_ValidCommand_ReturnsSuccessWithDocumentDto [137 ms]
+  Error Message:
+   Expected result.Value.Status to be "Uploading" with a length of 9, but "Active" has a length of 6, differs near "Act" (index 0).
+  Stack Trace:
+     at FluentAssertions.Execution.XUnit2TestFramework.Throw(String message)
+   at FluentAssertions.Execution.TestFrameworkProvider.Throw(String message)
+   at FluentAssertions.Execution.DefaultAssertionStrategy.HandleFailure(String message)
+   at FluentAssertions.Execution.AssertionScope.FailWith(Func`1 failReasonFunc)
+   at FluentAssertions.Execution.AssertionScope.FailWith(Func`1 failReasonFunc)
+   at FluentAssertions.Primitives.StringEqualityValidator.ValidateAgainstLengthDifferences()
+   at FluentAssertions.Primitives.StringValidator.Validate()
+   at FluentAssertions.Primitives.StringAssertions`1.Be(String expected, String because, Object[] becauseArgs)
+   at DocumentService.UnitTests.Application.Commands.UploadDocumentCommandHandlerTests.Handle_ValidCommand_ReturnsSuccessWithDocumentDto() in c:\Projects\ProjectSaaS\tests\DocumentService.UnitTests\Application\Commands\UploadDocumentCommandHandlerTests.cs:line 44
+--- End of stack trace from previous location ---
+  Failed DocumentService.UnitTests.Application.Commands.UploadDocumentCommandHandlerTests.Handle_DuplicateTitle_AddsNewVersion [6 ms]
+  Error Message:
+   System.InvalidOperationException : Cannot add version. Status: Uploading
+  Stack Trace:
+     at DocumentService.Domain.Entities.Document.AddVersion(StoragePath storagePath, FileSize fileSize, Guid uploadedByUserId) in c:\Projects\ProjectSaaS\services\document-service\DocumentService.Domain\Entities\Document.cs:line 135
+   at DocumentService.Application.Commands.UploadDocument.UploadDocumentCommandHandler.Handle(UploadDocumentCommand command, CancellationToken cancellationToken) in c:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\Commands\UploadDocument\UploadDocumentCommandHandler.cs:line 88
+   at DocumentService.UnitTests.Application.Commands.UploadDocumentCommandHandlerTests.Handle_DuplicateTitle_AddsNewVersion() in c:\Projects\ProjectSaaS\tests\DocumentService.UnitTests\Application\Commands\UploadDocumentCommandHandlerTests.cs:line 156
+--- End of stack trace from previous location ---
+
+Failed!  - Failed:     2, Passed:    23, Skipped:     0, Total:    25, Duration: 317 ms - DocumentService.UnitTests.dll (net9.0)

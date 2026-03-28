@@ -1,0 +1,36 @@
+﻿  Determining projects to restore...
+C:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\DocumentService.Application.csproj : warning NU1903: Package 'AutoMapper' 13.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-rvv3-g6hj-g44x [C:\Projects\ProjectSaaS\services\document-service\DocumentService.API\DocumentService.API.csproj]
+  All projects are up-to-date for restore.
+C:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\DocumentService.Application.csproj : warning NU1903: Package 'AutoMapper' 13.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-rvv3-g6hj-g44x
+  Shared.Infrastructure -> C:\Projects\ProjectSaaS\shared\Shared.Infrastructure\bin\Debug\net8.0\Shared.Infrastructure.dll
+  Shared.Domain -> C:\Projects\ProjectSaaS\shared\Shared.Domain\bin\Debug\net8.0\Shared.Domain.dll
+  DocumentService.Domain -> C:\Projects\ProjectSaaS\services\document-service\DocumentService.Domain\bin\Debug\net8.0\DocumentService.Domain.dll
+  Shared.Contracts -> C:\Projects\ProjectSaaS\shared\Shared.Contracts\bin\Debug\net8.0\Shared.Contracts.dll
+  DocumentService.Application -> C:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\bin\Debug\net8.0\DocumentService.Application.dll
+  DocumentService.Infrastructure -> C:\Projects\ProjectSaaS\services\document-service\DocumentService.Infrastructure\bin\Debug\net8.0\DocumentService.Infrastructure.dll
+  DocumentService.API -> C:\Projects\ProjectSaaS\services\document-service\DocumentService.API\bin\Debug\net8.0\DocumentService.API.dll
+
+Build succeeded.
+
+C:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\DocumentService.Application.csproj : warning NU1903: Package 'AutoMapper' 13.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-rvv3-g6hj-g44x [C:\Projects\ProjectSaaS\services\document-service\DocumentService.API\DocumentService.API.csproj]
+C:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\DocumentService.Application.csproj : warning NU1903: Package 'AutoMapper' 13.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-rvv3-g6hj-g44x
+    2 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.49
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  Shared.Contracts -> C:\Projects\ProjectSaaS\shared\Shared.Contracts\bin\Debug\net8.0\Shared.Contracts.dll
+  Shared.Domain -> C:\Projects\ProjectSaaS\shared\Shared.Domain\bin\Debug\net8.0\Shared.Domain.dll
+  WorkflowService.Domain -> C:\Projects\ProjectSaaS\services\workflow-service\WorkflowService.Domain\bin\Debug\net8.0\WorkflowService.Domain.dll
+C:\Projects\ProjectSaaS\services\workflow-service\WorkflowService.Application\Commands\ApproveStage\ApproveStageCommandHandler.cs(16,22): error CS0246: The type or namespace name 'IPublishEndpoint' could not be found (are you missing a using directive or an assembly reference?) [C:\Projects\ProjectSaaS\services\workflow-service\WorkflowService.Application\WorkflowService.Application.csproj]
+C:\Projects\ProjectSaaS\services\workflow-service\WorkflowService.Application\Commands\ApproveStage\ApproveStageCommandHandler.cs(20,9): error CS0246: The type or namespace name 'IPublishEndpoint' could not be found (are you missing a using directive or an assembly reference?) [C:\Projects\ProjectSaaS\services\workflow-service\WorkflowService.Application\WorkflowService.Application.csproj]
+
+Build FAILED.
+
+C:\Projects\ProjectSaaS\services\workflow-service\WorkflowService.Application\Commands\ApproveStage\ApproveStageCommandHandler.cs(16,22): error CS0246: The type or namespace name 'IPublishEndpoint' could not be found (are you missing a using directive or an assembly reference?) [C:\Projects\ProjectSaaS\services\workflow-service\WorkflowService.Application\WorkflowService.Application.csproj]
+C:\Projects\ProjectSaaS\services\workflow-service\WorkflowService.Application\Commands\ApproveStage\ApproveStageCommandHandler.cs(20,9): error CS0246: The type or namespace name 'IPublishEndpoint' could not be found (are you missing a using directive or an assembly reference?) [C:\Projects\ProjectSaaS\services\workflow-service\WorkflowService.Application\WorkflowService.Application.csproj]
+    0 Warning(s)
+    2 Error(s)
+
+Time Elapsed 00:00:02.83

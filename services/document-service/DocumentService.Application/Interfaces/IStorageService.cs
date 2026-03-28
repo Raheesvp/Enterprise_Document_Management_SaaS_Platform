@@ -31,6 +31,9 @@ public interface IStorageService
         string path,
         CancellationToken ct = default);
 
-    // Get public URL for direct browser access
-    string GetPublicUrl(string path);
+    // Get pre-signed URL for direct browser access (short lived)
+    Task<string> GetPresignedUrlAsync(
+        string path, 
+        string? contentType = null, 
+        int expiryMinutes = 30);
 }

@@ -1,5 +1,5 @@
 import { Injectable, inject } from "@angular/core";
-import { HttpClient, HttpParams, HttpHeaders } from "@angular/common/http";
+import { HttpClient, HttpParams } from "@angular/common/http";
 import { Observable } from "rxjs";
 import { environment } from "../../../../environments/environment";
 import {
@@ -44,16 +44,58 @@ export class DocumentService {
       `${this.base}/${id}/archive`, {});
   }
 
-  downloadDocument(id: string): Observable<Blob> {
-    return this.http.get(`${this.base}/${id}/download`, {
-      responseType: "blob",
-    });
+  downloadFromUrl(url: string, fileName: string): void {
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = fileName;
+    anchor.target = "_blank"; // Ensure it doesn't navigate away
+    anchor.style.display = "none";
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
   }
 
-  downloadVersion(versionId: string): Observable<Blob> {
-    return this.http.get(`${this.base}/versions/${versionId}/download`, {
-      responseType: "blob",
-    });
+  saveBlobAsFile(blob: Blob, fileName: string): void {
+    const url = window.URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = fileName;
+    anchor.style.display = "none";
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    window.URL.revokeObjectURL(url);
+  }
+
+  buildDownloadFileName(title: string, mimeType: string, suffix = ""): string {
+    const safeTitle = title?.trim() || "document";
+    const extension = this.getExtensionFromMimeType(mimeType);
+
+    if (safeTitle.includes(".")) {
+      const lastDotIndex = safeTitle.lastIndexOf(".");
+      const name = safeTitle.slice(0, lastDotIndex);
+      const existingExtension = safeTitle.slice(lastDotIndex);
+      return `${name}${suffix}${existingExtension}`;
+    }
+
+    if (!extension) {
+      return `${safeTitle}${suffix}`;
+    }
+
+    return `${safeTitle}${suffix}${extension}`;
+  }
+
+  private getExtensionFromMimeType(mimeType: string): string {
+    const map: Record<string, string> = {
+      "application/pdf": ".pdf",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": ".docx",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": ".xlsx",
+      "image/jpeg": ".jpg",
+      "image/png": ".png",
+      "text/plain": ".txt",
+    };
+
+    return map[mimeType] ?? "";
   }
 
   formatFileSize(bytes: number): string {

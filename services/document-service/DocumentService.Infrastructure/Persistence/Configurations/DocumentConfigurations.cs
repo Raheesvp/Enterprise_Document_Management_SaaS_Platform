@@ -107,6 +107,10 @@ public sealed class DocumentConfiguration
             .HasForeignKey(v => v.DocumentId)
             .OnDelete(DeleteBehavior.Cascade);
 
+            builder.Navigation(d => d.Versions)
+        .HasField("_versions")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+
         // ── Ignore Domain Events ───────────────────────────
         // Domain events are in-memory only — not persisted
         builder.Ignore(d => d.DomainEvents);

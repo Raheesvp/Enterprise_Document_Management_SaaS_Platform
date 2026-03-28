@@ -1,4 +1,5 @@
 using DocumentService.Application.DTOs;
+using DocumentService.Application.Interfaces;
 using DocumentService.Domain.Errors;
 using DocumentService.Domain.Repositories;
 using MediatR;
@@ -10,10 +11,15 @@ public sealed class GetDocumentVersionsQueryHandler
     : IRequestHandler<GetDocumentVersionsQuery, Result<IReadOnlyList<DocumentVersionDto>>>
 {
     private readonly IDocumentReadRepository _readRepo;
+    private readonly IStorageService _storageService;
 
     public GetDocumentVersionsQueryHandler(
-        IDocumentReadRepository readRepo)
-        => _readRepo = readRepo;
+        IDocumentReadRepository readRepo,
+        IStorageService storageService)
+    {
+        _readRepo = readRepo;
+        _storageService = storageService;
+    }
 
     public async Task<Result<IReadOnlyList<DocumentVersionDto>>> Handle(
         GetDocumentVersionsQuery query,
@@ -35,8 +41,15 @@ public sealed class GetDocumentVersionsQueryHandler
             query.TenantId,
             cancellationToken);
 
-        var dtos = versions
-            .Select(v => new DocumentVersionDto(
+        var dtos = new List<DocumentVersionDto>();
+        
+        foreach (var v in versions)
+        {
+            var downloadUrl = await _storageService.GetPresignedUrlAsync(
+                v.StoragePath,
+                document.MimeType);
+
+            dtos.Add(new DocumentVersionDto(
                 v.Id,
                 v.VersionNumber,
                 v.FileSizeBytes,
@@ -46,11 +59,11 @@ public sealed class GetDocumentVersionsQueryHandler
                 v.UploadedByUserId.ToString(),
                 v.CreatedAt,
                 v.ExtractedText,
-                v.PageCount))
-            .ToList()
-            .AsReadOnly();
+                v.PageCount,
+                downloadUrl));
+        }
 
-        return Result.Success<IReadOnlyList<DocumentVersionDto>>(dtos);
+        return Result.Success<IReadOnlyList<DocumentVersionDto>>(dtos.AsReadOnly());
     }
 
     private static string FormatFileSize(long bytes) =>

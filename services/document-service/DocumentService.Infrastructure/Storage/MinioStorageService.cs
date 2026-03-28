@@ -1,4 +1,4 @@
-using DocumentService.Application.Interfaces;
+ï»¿using DocumentService.Application.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Minio;
@@ -37,12 +37,12 @@ public sealed class MinioStorageService : IStorageService
         {
             await EnsureBucketExistsAsync(ct);
 
-            // MinIO requires object size — read into memory if unknown
+            // MinIO requires object size â€” read into memory if unknown
             // Stream.Null and streams with no length need special handling
             byte[] data;
             if (content == Stream.Null || content.Length == 0)
             {
-                // Empty file — create 1 byte placeholder
+                // Empty file â€” create 1 byte placeholder
                 data = new byte[] { 0 };
             }
             else
@@ -156,8 +156,26 @@ public sealed class MinioStorageService : IStorageService
         }
     }
 
-    public string GetPublicUrl(string path)
-        => $"http://{_endpoint}/{_bucketName}/{path}";
+    public async Task<string> GetPresignedUrlAsync(
+        string path, 
+        string? contentType = null, 
+        int expiryMinutes = 30)
+    {
+        try
+        {
+            var args = new PresignedGetObjectArgs()
+                .WithBucket(_bucketName)
+                .WithObject(path)
+                .WithExpiry(expiryMinutes * 60);
+
+            return await _minioClient.PresignedGetObjectAsync(args);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to generate pre-signed URL for {Path}", path);
+            return string.Empty;
+        }
+    }
 
     private async Task EnsureBucketExistsAsync(CancellationToken ct)
     {

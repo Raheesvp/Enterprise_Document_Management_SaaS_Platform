@@ -1,4 +1,5 @@
 using DocumentService.Application.DTOs;
+using DocumentService.Application.Interfaces;
 using DocumentService.Domain.Errors;
 using DocumentService.Domain.Repositories;
 using MediatR;
@@ -20,9 +21,15 @@ public sealed class GetDocumentQueryHandler
     : IRequestHandler<GetDocumentQuery, Result<DocumentDto>>
 {
     private readonly IDocumentReadRepository _readRepo;
+    private readonly IStorageService _storageService;
 
-    public GetDocumentQueryHandler(IDocumentReadRepository readRepo)
-        => _readRepo = readRepo;
+    public GetDocumentQueryHandler(
+        IDocumentReadRepository readRepo,
+        IStorageService storageService)
+    {
+        _readRepo = readRepo;
+        _storageService = storageService;
+    }
 
     public async Task<Result<DocumentDto>> Handle(
         GetDocumentQuery query,
@@ -38,6 +45,10 @@ public sealed class GetDocumentQueryHandler
             return Result.Failure<DocumentDto>(
                 DocumentErrors.Document.NotFound(query.DocumentId));
 
+        var downloadUrl = await _storageService.GetPresignedUrlAsync(
+            summary.StoragePath,
+            summary.MimeType);
+
         return Result.Success(new DocumentDto(
             summary.Id,
             summary.TenantId,
@@ -49,12 +60,13 @@ public sealed class GetDocumentQueryHandler
             FormatFileSize(summary.FileSizeBytes),
             summary.VersionCount,
             summary.VersionCount, // current version = latest count
-            string.Empty,         // StoragePath not exposed in list view
+            summary.StoragePath,
             summary.UploadedByUserId.ToString(),
             summary.CreatedAt,
             summary.UpdatedAt,
             summary.Description,
-            summary.Tags));
+            summary.Tags,
+            downloadUrl));
     }
 
     // Format bytes into human readable string

@@ -12,6 +12,7 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatDividerModule } from "@angular/material/divider";
 import { MatProgressSpinnerModule } from "@angular/material/progress-spinner";
 import { MatChipsModule } from "@angular/material/chips";
+import { MatSnackBar, MatSnackBarModule } from "@angular/material/snack-bar";
 import { Document, DocumentVersion, DocumentStatusColors, DocumentStatusLabels, DocumentStatus } from "../models/document.models";
 import { DocumentService } from "../services/document.service";
 
@@ -27,6 +28,7 @@ import { DocumentService } from "../services/document.service";
     MatDividerModule,
     MatProgressSpinnerModule,
     MatChipsModule,
+    MatSnackBarModule,
   ],
   template: `
     <div class="page-container">
@@ -68,78 +70,78 @@ import { DocumentService } from "../services/document.service";
             <mat-divider></mat-divider>
 
             <mat-card-content>
-              <div class="detail-grid">
-                <div class="detail-item">
-                  <span class="detail-label">File Type</span>
-                  <span class="detail-value">
-                    {{ docService.formatMimeType(document()!.mimeType) }}
-                  </span>
-                </div>
-                <div class="detail-item">
-                  <span class="detail-label">File Size</span>
-                  <span class="detail-value">
-                    {{ docService.formatFileSize(document()!.fileSizeBytes) }}
-                  </span>
-                </div>
-                <div class="detail-item">
-                  <span class="detail-label">Uploaded</span>
-                  <span class="detail-value">
-                    {{ document()!.createdAt | date: "dd MMM yyyy HH:mm" }}
-                  </span>
-                </div>
-                <div class="detail-item">
-                  <span class="detail-label">Last Updated</span>
-                  <span class="detail-value">
-                    {{ document()!.updatedAt | date: "dd MMM yyyy HH:mm" }}
-                  </span>
-                </div>
-              </div>
-            </mat-card-content>
+    <div class="detail-grid">
+      <div class="detail-item">
+        <span class="detail-label">File Type</span>
+        <span class="detail-value">{{ docService.formatMimeType(document()!.mimeType) }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">File Size</span>
+        <span class="detail-value">{{ docService.formatFileSize(document()!.fileSizeBytes) }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Uploaded</span>
+        <span class="detail-value">{{ document()!.createdAt | date: "dd MMM yyyy HH:mm" }}</span>
+      </div>
+      <div class="detail-item">
+        <span class="detail-label">Last Updated</span>
+        <span class="detail-value">{{ document()!.updatedAt | date: "dd MMM yyyy HH:mm" }}</span>
+      </div>
+    </div>
+  </mat-card-content>
 
-            <mat-card-actions>
-              <button mat-stroked-button color="primary"
-                routerLink="/workflow">
-                <mat-icon>account_tree</mat-icon>
-                View Workflow
-              </button>
+  <mat-card-actions>
+    <button mat-stroked-button color="primary" routerLink="/workflow">
+      <mat-icon>account_tree</mat-icon>
+      View Workflow
+    </button>
+    <button mat-raised-button color="accent" [routerLink]="['/upload', document()!.id]">
+      <mat-icon>history</mat-icon>
+      Upload New Version
+    </button>
+  </mat-card-actions>
+</mat-card>
 
-              <button mat-raised-button color="accent" 
-            [routerLink]="['/upload', document()!.id]">
-               <mat-icon>history</mat-icon>
-           Upload New Version
-               </button>
-
-            </mat-card-actions>
-          </mat-card>
 
           <!-- Version History Card -->
-          <mat-card class="versions-card">
-            <mat-card-header>
-              <h3>Version History</h3>
-            </mat-card-header>
-            <mat-divider></mat-divider>
-            <mat-card-content>
-              @if (versions().length === 0) {
-                <p class="no-versions">No versions available</p>
-              }
-          @for (version of versions(); track version.id) {
-  <div class="version-item">
-       <div class="version-badge">v{{ version.versionNumber }}</div>
-         <div class="version-info">
-           <span class="version-date">
-            {{ version.createdAt | date: "dd MMM yyyy HH:mm" }}
-             </span>
-      @if (version.versionNumber === document()?.currentVersion) {
-        <span class="current-label">Current</span>
+        <mat-card class="versions-card">
+  <mat-card-header>
+    <h3>Version History</h3>
+  </mat-card-header>
+  <mat-divider></mat-divider>
+  <mat-card-content>
+    @if (versions().length === 0) {
+      <p class="no-versions">No versions available</p>
+    }
+    <div class="versions-list">
+      @for (version of versions(); track version.id) {
+        <div class="version-item">
+          <div class="version-info">
+            <span class="version-text">
+              v{{ version.versionNumber }} — uploaded {{ version.createdAt | date: "dd MMM yyyy" }}
+            </span>
+            @if (version.versionNumber === document()?.currentVersion) {
+              <span class="current-label">(current)</span>
+            }
+          </div>
+
+          <div class="actions">
+            <button mat-icon-button color="primary" 
+                    (click)="previewVersion(version)" 
+                    title="Preview this version">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button mat-icon-button color="primary" 
+                    (click)="downloadVersion(version)" 
+                    title="Download this version">
+              <mat-icon>download</mat-icon>
+            </button>
+          </div>
+        </div>
       }
-     </div>
-    <button mat-icon-button (click)="docService.downloadVersion(version.id)">
-      <mat-icon>download</mat-icon>
-    </button>
-  </div>
-}
-            </mat-card-content>
-          </mat-card>
+    </div>
+  </mat-card-content>
+</mat-card>
 
         </div>
       }
@@ -260,23 +262,35 @@ import { DocumentService } from "../services/document.service";
     .version-item {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 12px 0;
+      justify-content: space-between;
+      padding: 12px 16px;
       border-bottom: 1px solid #F1F5F9;
+      transition: background-color 0.2s;
     }
-    .version-badge {
-      background: #EFF6FF;
-      color: #2563EB;
-      padding: 4px 8px;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 700;
-      min-width: 32px;
-      text-align: center;
+    .version-item:hover {
+      background-color: #F8FAFC;
     }
-    .version-date {
-      font-size: 13px;
+    .version-item:last-child {
+      border-bottom: none;
+    }
+    .version-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .actions {
+      display: flex;
+      gap: 4px;
+    }
+    .version-text {
+      font-size: 14px;
+      color: #334155;
+      font-weight: 500;
+    }
+    .current-label {
+      font-size: 14px;
       color: #64748B;
+      font-weight: 400;
     }
     .not-found {
       display: flex;
@@ -302,6 +316,7 @@ import { DocumentService } from "../services/document.service";
 export class DocumentDetailComponent implements OnInit {
   docService = inject(DocumentService);
   private route = inject(ActivatedRoute);
+  private snackBar = inject(MatSnackBar);
 
   document   = signal<Document | null>(null);
   versions   = signal<DocumentVersion[]>([]);
@@ -324,11 +339,50 @@ export class DocumentDetailComponent implements OnInit {
     });
   }
 
-  private loadVersions(documentId: string): void {
-    this.docService.getVersions(documentId).subscribe({
-      next: (versions) => this.versions.set(versions ?? []),
-      error: () => this.versions.set([]),
-    });
+private loadVersions(documentId: string): void {
+  this.docService.getVersions(documentId).subscribe({
+    next: (versions) => {
+      // Sort by version number descending so the newest is always on top
+      const sorted = (versions ?? []).sort((a, b) => b.versionNumber - a.versionNumber);
+      this.versions.set(sorted);
+    },
+    error: () => this.versions.set([]),
+  });
+}
+
+  previewDocument(): void {
+    const doc = this.document();
+    if (!doc?.downloadUrl) return;
+    window.open(doc.downloadUrl, "_blank");
+  }
+
+  downloadDocument(): void {
+    const doc = this.document();
+    if (!doc?.downloadUrl) return;
+
+    this.docService.downloadFromUrl(
+      doc.downloadUrl,
+      this.docService.buildDownloadFileName(doc.title, doc.mimeType)
+    );
+  }
+
+  previewVersion(version: DocumentVersion): void {
+    if (!version.downloadUrl) return;
+    window.open(version.downloadUrl, "_blank");
+  }
+
+  downloadVersion(version: DocumentVersion): void {
+    const doc = this.document();
+    if (!doc || !version.downloadUrl) return;
+
+    this.docService.downloadFromUrl(
+      version.downloadUrl,
+      this.docService.buildDownloadFileName(
+        doc.title,
+        doc.mimeType,
+        `-v${version.versionNumber}`
+      )
+    );
   }
 
   getStatusColor(status: string): string {

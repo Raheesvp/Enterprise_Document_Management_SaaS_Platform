@@ -533,13 +533,14 @@ export class DocumentListComponent implements OnInit {
 
   downloadDocument(doc: Document): void {
     this.docService.downloadDocument(doc.id).subscribe({
-      next: (blob: any) => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = doc.title;
-        a.click();
-        window.URL.revokeObjectURL(url);
+      next: (blob: Blob) => {
+        this.docService.saveBlobAsFile(
+          blob,
+          this.docService.buildDownloadFileName(
+            doc.title,
+            doc.mimeType
+          )
+        );
       },
       error: () => {
         this.snackBar.open("Failed to download document", "Close", { duration: 3000 });

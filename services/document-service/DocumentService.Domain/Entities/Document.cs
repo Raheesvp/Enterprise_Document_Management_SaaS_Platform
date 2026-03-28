@@ -108,13 +108,17 @@ public sealed class Document : AggregateRoot<Guid>
 
     public void Approve()
     {
-        EnsureStatus(DocumentStatus.UnderReview);
+        if (Status != DocumentStatus.UnderReview && Status != DocumentStatus.Active)
+            throw new InvalidOperationException($"Cannot approve document in {Status} state");
+            
         ChangeStatus(DocumentStatus.Approved);
     }
 
     public void Reject()
     {
-        EnsureStatus(DocumentStatus.UnderReview);
+        if (Status != DocumentStatus.UnderReview && Status != DocumentStatus.Active)
+            throw new InvalidOperationException($"Cannot reject document in {Status} state");
+
         ChangeStatus(DocumentStatus.Rejected);
     }
 
@@ -149,6 +153,7 @@ public sealed class Document : AggregateRoot<Guid>
 
         RaiseDomainEvent(new DocumentVersionAddedEvent(
             Guid.NewGuid(), Id, TenantId,
+            uploadedByUserId,
             newVersion.VersionNumber,
             storagePath.Value,
             DateTime.UtcNow, DateTime.UtcNow));

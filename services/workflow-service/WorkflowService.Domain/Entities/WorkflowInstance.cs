@@ -1,5 +1,6 @@
 using Shared.Domain.Primitives;
 using WorkflowService.Domain.Enums;
+using WorkflowService.Domain.Events;
 
 namespace WorkflowService.Domain.Entities;
 
@@ -43,6 +44,22 @@ public sealed class WorkflowInstance : AggregateRoot<Guid>
         };
     }
 
+    public void Reinitialize(
+        Guid workflowDefinitionId,
+        string documentTitle,
+        Guid initiatedByUserId)
+    {
+        WorkflowDefinitionId = workflowDefinitionId;
+        DocumentTitle        = documentTitle;
+        InitiatedByUserId    = initiatedByUserId;
+        Status               = WorkflowStatus.NotStarted;
+        CurrentStageOrder    = 0;
+        StartedAt            = DateTime.UtcNow;
+        CompletedAt          = null;
+        
+        _stages.Clear();
+    }
+
     public void AddStage(WorkflowStage stage)
         => _stages.Add(stage);
 
@@ -73,6 +90,10 @@ public sealed class WorkflowInstance : AggregateRoot<Guid>
         {
             Status      = WorkflowStatus.Approved;
             CompletedAt = DateTime.UtcNow;
+            
+            RaiseDomainEvent(new WorkflowCompletedDomainEvent(
+                Guid.NewGuid(), DateTime.UtcNow, Id, TenantId, DocumentId, DocumentTitle));
+                
             return true;
         }
 
@@ -90,6 +111,9 @@ public sealed class WorkflowInstance : AggregateRoot<Guid>
 
         Status      = WorkflowStatus.Rejected;
         CompletedAt = DateTime.UtcNow;
+        
+        RaiseDomainEvent(new WorkflowRejectedDomainEvent(
+            Guid.NewGuid(), DateTime.UtcNow, Id, TenantId, DocumentId, DocumentTitle, comments ?? "No reason provided"));
     }
 
     public void EscalateCurrentStage()

@@ -1,0 +1,20 @@
+﻿  Determining projects to restore...
+c:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\DocumentService.Application.csproj : warning NU1903: Package 'AutoMapper' 13.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-rvv3-g6hj-g44x [c:\Projects\ProjectSaaS\services\document-service\DocumentService.API\DocumentService.API.csproj]
+  All projects are up-to-date for restore.
+c:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\DocumentService.Application.csproj : warning NU1903: Package 'AutoMapper' 13.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-rvv3-g6hj-g44x
+  Shared.Infrastructure -> c:\Projects\ProjectSaaS\shared\Shared.Infrastructure\bin\Debug\net8.0\Shared.Infrastructure.dll
+  Shared.Domain -> c:\Projects\ProjectSaaS\shared\Shared.Domain\bin\Debug\net8.0\Shared.Domain.dll
+  DocumentService.Domain -> c:\Projects\ProjectSaaS\services\document-service\DocumentService.Domain\bin\Debug\net8.0\DocumentService.Domain.dll
+  Shared.Contracts -> c:\Projects\ProjectSaaS\shared\Shared.Contracts\bin\Debug\net8.0\Shared.Contracts.dll
+  DocumentService.Application -> c:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\bin\Debug\net8.0\DocumentService.Application.dll
+c:\Projects\ProjectSaaS\services\document-service\DocumentService.Infrastructure\DependencyInjection.cs(139,10): error CS1513: } expected [c:\Projects\ProjectSaaS\services\document-service\DocumentService.Infrastructure\DocumentService.Infrastructure.csproj]
+
+Build FAILED.
+
+c:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\DocumentService.Application.csproj : warning NU1903: Package 'AutoMapper' 13.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-rvv3-g6hj-g44x [c:\Projects\ProjectSaaS\services\document-service\DocumentService.API\DocumentService.API.csproj]
+c:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\DocumentService.Application.csproj : warning NU1903: Package 'AutoMapper' 13.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-rvv3-g6hj-g44x
+c:\Projects\ProjectSaaS\services\document-service\DocumentService.Infrastructure\DependencyInjection.cs(139,10): error CS1513: } expected [c:\Projects\ProjectSaaS\services\document-service\DocumentService.Infrastructure\DocumentService.Infrastructure.csproj]
+    2 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:03.66

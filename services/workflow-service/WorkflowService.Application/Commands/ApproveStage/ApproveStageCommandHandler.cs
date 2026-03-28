@@ -1,10 +1,13 @@
 using MediatR;
+using MassTransit;
 using Shared.Domain.Common;
 using WorkflowService.Application.DTOs;
 using WorkflowService.Application.Interfaces;
 using WorkflowService.Domain.Entities;
 using WorkflowService.Domain.Errors;
 using WorkflowService.Domain.StateMachines;
+using WorkflowService.Domain.Enums;
+using Shared.Contracts.IntegrationEvents.Workflow;
 
 namespace WorkflowService.Application.Commands.ApproveStage;
 
@@ -13,10 +16,15 @@ public sealed class ApproveStageCommandHandler
         Result<WorkflowInstanceDto>>
 {
     private readonly IWorkflowRepository _repository;
+    private readonly IPublishEndpoint _publishEndpoint;
 
     public ApproveStageCommandHandler(
-        IWorkflowRepository repository)
-        => _repository = repository;
+        IWorkflowRepository repository,
+        IPublishEndpoint publishEndpoint)
+    {
+        _repository      = repository;
+        _publishEndpoint = publishEndpoint;
+    }
 
     public async Task<Result<WorkflowInstanceDto>> Handle(
         ApproveStageCommand request,
@@ -45,11 +53,43 @@ public sealed class ApproveStageCommandHandler
             return Result.Failure<WorkflowInstanceDto>(
                 WorkflowErrors.Stage.NotAssignedToUser);
 
+        var previousStageOrder = instance.CurrentStageOrder;
+        
         // Use state machine for safe transition
         var stateMachine = new WorkflowStateMachine(instance);
         stateMachine.Approve(request.UserId, request.Comments);
 
         await _repository.UpdateAsync(instance, cancellationToken);
+
+        // Publish events based on new state
+        if (instance.Status == WorkflowStatus.Approved)
+        {
+            await _publishEndpoint.Publish(new WorkflowCompletedEvent
+            {
+                TenantId           = instance.TenantId,
+                WorkflowInstanceId = instance.Id,
+                DocumentId         = instance.DocumentId,
+                DocumentTitle      = instance.DocumentTitle
+            }, cancellationToken);
+       
+        }
+        else if (instance.CurrentStageOrder > previousStageOrder)
+        {
+            var nextStage = instance.GetCurrentStage();
+            if (nextStage != null)
+            {
+                await _publishEndpoint.Publish(new WorkflowStartedEvent
+                {
+                    TenantId           = instance.TenantId,
+                    WorkflowInstanceId = instance.Id,
+                    DocumentId         = instance.DocumentId,
+                    CurrentStageName   = nextStage.StageName,
+                    AssignedToUserId   = nextStage.AssignedToUserId,
+                    AssignedToEmail    = nextStage.AssignedToEmail,
+                    SLADeadline        = nextStage.SlaDeadline
+                }, cancellationToken);
+            }
+        }
 
         return Result.Success(MapToDto(instance));
     }

@@ -1,4 +1,5 @@
 using DocumentService.Application.Commands.ArchiveDocument;
+using DocumentService.Application.Interfaces;
 using DocumentService.Application.Queries.GetDocument;
 using DocumentService.Application.Queries.GetDocumentList;
 using DocumentService.Application.Queries.GetDocumentVersions;
@@ -17,13 +18,16 @@ public sealed class DocumentsController : ControllerBase
 {
     private readonly IMediator _mediator;
     private readonly ITenantContext _tenantContext;
+    private readonly IStorageService _storageService;
 
     public DocumentsController(
         IMediator mediator,
-        ITenantContext tenantContext)
+        ITenantContext tenantContext,
+        IStorageService storageService)
     {
         _mediator      = mediator;
         _tenantContext = tenantContext;
+        _storageService = storageService;
     }
 
     [HttpGet]
@@ -123,15 +127,45 @@ public sealed class DocumentsController : ControllerBase
             return NotFound(new { error = result.Error.Description });
 
         var doc = result.Value;
-        
-        // In a real app, this would stream from S3/MinIO
-        // For now, we simulate finding the file
-        var filePath = doc.StoragePath;
-        if (!System.IO.File.Exists(filePath))
-            return NotFound(new { error = "Physical file not found" });
 
-        var bytes = await System.IO.File.ReadAllBytesAsync(filePath, ct);
-        return File(bytes, doc.MimeType, doc.Title);
+        if (string.IsNullOrWhiteSpace(doc.StoragePath))
+            return NotFound(new { error = "Document storage path not found" });
+
+        try
+        {
+            var fileStream = await _storageService.DownloadAsync(
+                doc.StoragePath, ct);
+
+            return File(
+                fileStream,
+                doc.MimeType,
+                BuildDownloadFileName(doc.Title, doc.MimeType));
+        }
+        catch (FileNotFoundException)
+        {
+            return NotFound(new { error = "Physical file not found" });
+        }
+    }
+
+    private static string BuildDownloadFileName(
+        string title,
+        string mimeType)
+    {
+        if (Path.HasExtension(title))
+            return title;
+
+        var extension = mimeType.ToLowerInvariant() switch
+        {
+            "application/pdf" => ".pdf",
+            "text/plain" => ".txt",
+            "image/png" => ".png",
+            "image/jpeg" => ".jpg",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => ".docx",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => ".xlsx",
+            _ => string.Empty
+        };
+
+        return $"{title}{extension}";
     }
 
     private Guid GetUserId()

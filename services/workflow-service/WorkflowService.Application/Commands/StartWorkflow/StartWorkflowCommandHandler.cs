@@ -28,25 +28,31 @@ public sealed class StartWorkflowCommandHandler
         StartWorkflowCommand request,
         CancellationToken cancellationToken)
     {
-        // Check no existing workflow for this document
-        var existing = await _repository.GetByDocumentIdAsync(
+        var workflow = await _repository.GetByDocumentIdAsync(
             request.DocumentId,
             request.TenantId,
             cancellationToken);
 
-        if (existing is not null)
-            return Result.Failure<WorkflowInstanceDto>(
-                WorkflowErrors.Instance.AlreadyStarted);
+        if (workflow is null)
+        {
+            // Create new workflow instance
+            workflow = WorkflowInstance.Create(
+                request.TenantId,
+                request.DocumentId,
+                request.WorkflowDefinitionId,
+                request.DocumentTitle,
+                request.InitiatedByUserId);
+        }
+        else
+        {
+            // Restart existing workflow for this document
+            workflow.Reinitialize(
+                request.WorkflowDefinitionId,
+                request.DocumentTitle,
+                request.InitiatedByUserId);
+        }
 
-        // Create workflow instance
-        var instance = WorkflowInstance.Create(
-            request.TenantId,
-            request.DocumentId,
-            request.WorkflowDefinitionId,
-            request.DocumentTitle,
-            request.InitiatedByUserId);
-
-        // Create stages from assignments
+        // Create stages from assignments (re-adds to cleared list if restarting)
         foreach (var assignment in request.StageAssignments
             .OrderBy(s => s.StageOrder))
         {
@@ -54,32 +60,35 @@ public sealed class StartWorkflowCommandHandler
                 .AddDays(assignment.SlaDays);
 
             var stage = WorkflowStage.Create(
-                instance.Id,
+                workflow.Id,
                 assignment.StageOrder,
                 assignment.StageName,
                 assignment.AssignedToUserId,
                 assignment.AssignedToEmail,
                 slaDeadline);
 
-            instance.AddStage(stage);
+            workflow.AddStage(stage);
         }
 
         // Start workflow
-        instance.Start();
+        workflow.Start();
 
-        await _repository.AddAsync(instance, cancellationToken);
+        if (await _repository.GetByDocumentIdAsync(request.DocumentId, request.TenantId, cancellationToken) == null)
+            await _repository.AddAsync(workflow, cancellationToken);
+        else
+            await _repository.UpdateAsync(workflow, cancellationToken);
 
         // Publish WorkflowStartedEvent to RabbitMQ
         // Notification Service picks this up and sends email
-        var firstStage = instance.GetCurrentStage();
+        var firstStage = workflow.GetCurrentStage();
         if (firstStage is not null)
         {
             await _publishEndpoint.Publish(
                 new WorkflowStartedEvent
                 {
-                    TenantId             = instance.TenantId,
-                    WorkflowInstanceId   = instance.Id,
-                    DocumentId           = instance.DocumentId,
+                    TenantId             = workflow.TenantId,
+                    WorkflowInstanceId   = workflow.Id,
+                    DocumentId           = workflow.DocumentId,
                     CurrentStageName     = firstStage.StageName,
                     AssignedToUserId     = firstStage.AssignedToUserId,
                     AssignedToEmail      = firstStage.AssignedToEmail,
@@ -88,7 +97,7 @@ public sealed class StartWorkflowCommandHandler
                 cancellationToken);
         }
 
-        return Result.Success(MapToDto(instance));
+        return Result.Success(MapToDto(workflow));
     }
 
     private static WorkflowInstanceDto MapToDto(

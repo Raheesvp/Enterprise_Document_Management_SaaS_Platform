@@ -617,18 +617,20 @@ export class UploadComponent implements OnInit, OnDestroy {
           });
           this.snackBar.open(
             `"${file.file.name}" uploaded successfully`,
-            "View", { duration: 4000 })
+            "View", { duration: 5000 })
             .onAction().subscribe(() => {
-              if (this.documentId) {
-                this.router.navigate(["/documents", this.documentId]);
-              } else {
-                this.router.navigate(["/documents"]);
-              }
+              const target = this.documentId ? ["/documents", this.documentId] : ["/documents"];
+        this.router.navigate(target);
+              // if (this.documentId) {
+              //   this.router.navigate(["/documents", this.documentId]);
+              // } else {
+              //   this.router.navigate(["/documents"]);
+              // }
             });
           
-          if (this.documentId) {
-             setTimeout(() => this.router.navigate(["/documents", this.documentId]), 1500);
-          }
+          // if (this.documentId) {
+          //    setTimeout(() => this.router.navigate(["/documents", this.documentId]), 1500);
+          // }
         } else {
           uploadNextChunk();
         }

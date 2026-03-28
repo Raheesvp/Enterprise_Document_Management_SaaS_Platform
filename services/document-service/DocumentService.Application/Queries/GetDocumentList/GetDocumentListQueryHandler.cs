@@ -1,4 +1,5 @@
 using DocumentService.Application.DTOs;
+using DocumentService.Application.Interfaces;
 using DocumentService.Domain.Repositories;
 using MediatR;
 using Shared.Domain.Common;
@@ -9,17 +10,21 @@ public sealed class GetDocumentListQueryHandler
     : IRequestHandler<GetDocumentListQuery, Result<DocumentListDto>>
 {
     private readonly IDocumentReadRepository _readRepo;
+    private readonly IStorageService _storageService;
 
     public GetDocumentListQueryHandler(
-        IDocumentReadRepository readRepo)
-        => _readRepo = readRepo;
+        IDocumentReadRepository readRepo,
+        IStorageService storageService)
+    {
+        _readRepo = readRepo;
+        _storageService = storageService;
+    }
 
     public async Task<Result<DocumentListDto>> Handle(
         GetDocumentListQuery query,
         CancellationToken cancellationToken)
     {
         // Build filter object — passed to Dapper repository
-        // Dapper translates this into a parameterized SQL WHERE clause
         var filter = new DocumentQueryFilter(
             Status:     query.Status,
             Type:       query.Type,
@@ -35,8 +40,15 @@ public sealed class GetDocumentListQueryHandler
             cancellationToken);
 
         // Map read models → DTOs
-        var items = paged.Items
-            .Select(s => new DocumentSummaryDto(
+        var itemsList = new List<DocumentSummaryDto>();
+        
+        foreach (var s in paged.Items)
+        {
+            var downloadUrl = await _storageService.GetPresignedUrlAsync(
+                s.StoragePath, 
+                s.MimeType);
+
+            itemsList.Add(new DocumentSummaryDto(
                 s.Id,
                 s.Title,
                 s.Status,
@@ -49,12 +61,12 @@ public sealed class GetDocumentListQueryHandler
                 s.UploadedByName,
                 s.CreatedAt,
                 s.UpdatedAt,
-                s.Tags))
-            .ToList()
-            .AsReadOnly();
+                s.Tags,
+                downloadUrl));
+        }
 
         return Result.Success(new DocumentListDto(
-            items,
+            itemsList.AsReadOnly(),
             paged.TotalCount,
             paged.Page,
             paged.PageSize,

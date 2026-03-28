@@ -38,6 +38,7 @@ public record DocumentSummary(
     string DocumentType,
     string MimeType,
     long FileSizeBytes,
+    string StoragePath,
     int VersionCount,
     Guid UploadedByUserId,
     string UploadedByName,

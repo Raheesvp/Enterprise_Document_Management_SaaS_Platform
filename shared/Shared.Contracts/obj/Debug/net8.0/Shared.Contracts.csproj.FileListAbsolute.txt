@@ -1,4 +1,4 @@
-C:\Projects\ProjectSaaS\shared\Shared.Contracts\bin\Debug\net8.0\Shared.Contracts.deps.json
+C:\Projects\ProjectSaas\shared\Shared.Contracts\bin\Debug\net8.0\Shared.Contracts.deps.json
 C:\Projects\ProjectSaas\shared\Shared.Contracts\bin\Debug\net8.0\Shared.Contracts.dll
 C:\Projects\ProjectSaas\shared\Shared.Contracts\bin\Debug\net8.0\Shared.Contracts.pdb
 C:\Projects\ProjectSaas\shared\Shared.Contracts\obj\Debug\net8.0\Shared.Contracts.csproj.AssemblyReference.cache
@@ -10,4 +10,4 @@ C:\Projects\ProjectSaas\shared\Shared.Contracts\obj\Debug\net8.0\Shared.Contract
 C:\Projects\ProjectSaas\shared\Shared.Contracts\obj\Debug\net8.0\Shared.Contracts.dll
 C:\Projects\ProjectSaas\shared\Shared.Contracts\obj\Debug\net8.0\refint\Shared.Contracts.dll
 C:\Projects\ProjectSaas\shared\Shared.Contracts\obj\Debug\net8.0\Shared.Contracts.pdb
-C:\Projects\ProjectSaaS\shared\Shared.Contracts\obj\Debug\net8.0\ref\Shared.Contracts.dll
+C:\Projects\ProjectSaas\shared\Shared.Contracts\obj\Debug\net8.0\ref\Shared.Contracts.dll

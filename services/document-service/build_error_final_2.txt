@@ -1,0 +1,23 @@
+﻿  Determining projects to restore...
+c:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\DocumentService.Application.csproj : warning NU1903: Package 'AutoMapper' 13.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-rvv3-g6hj-g44x [c:\Projects\ProjectSaaS\services\document-service\DocumentService.Infrastructure\DocumentService.Infrastructure.csproj]
+  Restored C:\Projects\ProjectSaaS\shared\Shared.Contracts\Shared.Contracts.csproj (in 380 ms).
+  Restored C:\Projects\ProjectSaaS\services\document-service\DocumentService.Domain\DocumentService.Domain.csproj (in 380 ms).
+  Restored c:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\DocumentService.Application.csproj (in 380 ms).
+  Restored c:\Projects\ProjectSaaS\services\document-service\DocumentService.Infrastructure\DocumentService.Infrastructure.csproj (in 434 ms).
+  2 of 6 projects are up-to-date for restore.
+C:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\DocumentService.Application.csproj : warning NU1903: Package 'AutoMapper' 13.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-rvv3-g6hj-g44x [c:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\DocumentService.Application.csproj]
+  Shared.Domain -> C:\Projects\ProjectSaaS\shared\Shared.Domain\bin\Debug\net8.0\Shared.Domain.dll
+  Shared.Infrastructure -> c:\Projects\ProjectSaaS\shared\Shared.Infrastructure\bin\Debug\net8.0\Shared.Infrastructure.dll
+  Shared.Contracts -> c:\Projects\ProjectSaaS\shared\Shared.Contracts\bin\Debug\net8.0\Shared.Contracts.dll
+  DocumentService.Domain -> c:\Projects\ProjectSaaS\services\document-service\DocumentService.Domain\bin\Debug\net8.0\DocumentService.Domain.dll
+  DocumentService.Application -> C:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\bin\Debug\net8.0\DocumentService.Application.dll
+  DocumentService.Infrastructure -> c:\Projects\ProjectSaaS\services\document-service\DocumentService.Infrastructure\bin\Debug\net8.0\DocumentService.Infrastructure.dll
+
+Build succeeded.
+
+c:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\DocumentService.Application.csproj : warning NU1903: Package 'AutoMapper' 13.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-rvv3-g6hj-g44x [c:\Projects\ProjectSaaS\services\document-service\DocumentService.Infrastructure\DocumentService.Infrastructure.csproj]
+C:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\DocumentService.Application.csproj : warning NU1903: Package 'AutoMapper' 13.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-rvv3-g6hj-g44x [c:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\DocumentService.Application.csproj]
+    2 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:09.93

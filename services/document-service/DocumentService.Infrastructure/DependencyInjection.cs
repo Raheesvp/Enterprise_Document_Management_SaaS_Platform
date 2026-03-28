@@ -1,6 +1,7 @@
-using DocumentService.Application.Interfaces;
+ï»¿using DocumentService.Application.Interfaces;
 using DocumentService.Domain.Repositories;
 using DocumentService.Infrastructure.Messaging;
+using DocumentService.Infrastructure.Messaging.Consumers;
 using DocumentService.Infrastructure.Persistence;
 using DocumentService.Infrastructure.Persistence.Interceptors;
 using DocumentService.Infrastructure.Repositories;
@@ -25,7 +26,7 @@ public static class DependencyInjection
         // HTTP context accessor
         services.AddHttpContextAccessor();
 
-        // Tenant context — scoped per request
+        // Tenant context â€” scoped per request
         services.AddScoped<ITenantContext, HttpTenantContext>();
 
         // Interceptors
@@ -58,13 +59,13 @@ public static class DependencyInjection
                         tenantInterceptor);
             });
 
-        // Real repositories — replaced stubs Day 17
+        // Real repositories â€” replaced stubs Day 17
         services.AddScoped<IDocumentRepository,
             DocumentRepository>();
         services.AddScoped<IDocumentReadRepository,
             DocumentReadRepository>();
 
-        // MinIO client — singleton — thread safe
+        // MinIO client â€” singleton â€” thread safe
         services.AddSingleton<IMinioClient>(sp =>
         {
             var endpoint  = configuration["MinioSettings:Endpoint"]
@@ -84,10 +85,10 @@ public static class DependencyInjection
                 .Build();
         });
 
-        // Real storage — replaced stub Day 18
+        // Real storage â€” replaced stub Day 18
         services.AddScoped<IStorageService, MinioStorageService>();
 
-        // Redis — for upload session tracking
+        // Redis â€” for upload session tracking
         services.AddStackExchangeRedisCache(options =>
         {
             options.Configuration =
@@ -102,6 +103,9 @@ public static class DependencyInjection
         // MassTransit + RabbitMQ
         services.AddMassTransit(x =>
         {
+            x.AddConsumer<WorkflowCompletedConsumer>();
+            x.AddConsumer<WorkflowRejectedConsumer>();
+
             x.UsingRabbitMq((context, cfg) =>
             {
                 var host     = configuration["RabbitMqSettings:Host"]

@@ -80,25 +80,37 @@ public sealed class UploadDocumentCommandHandler
         }
         else
         {
-            document = Document.Create(
-                command.TenantId,
-                command.UploadedByUserId,
-                command.UploadedByName,
-                title,
-                contentType,
-                storagePath,
-                fileSize);
+            // Automatic versioning: check if a document with the same title already exists
+            var existing = await _documentRepo.GetByTitleAsync(command.Title, command.TenantId, cancellationToken);
+            
+            if (existing != null)
+            {
+                existing.AddVersion(storagePath, fileSize, command.UploadedByUserId);
+                document = existing;
+                await _documentRepo.UpdateAsync(document, cancellationToken);
+            }
+            else
+            {
+                document = Document.Create(
+                    command.TenantId,
+                    command.UploadedByUserId,
+                    command.UploadedByName,
+                    title,
+                    contentType,
+                    storagePath,
+                    fileSize);
 
-            if (command.Description is not null)
-                document.UpdateDescription(command.Description);
+                if (command.Description is not null)
+                    document.UpdateDescription(command.Description);
 
-            if (command.Tags is not null)
-                document.UpdateTags(command.Tags);
+                if (command.Tags is not null)
+                    document.UpdateTags(command.Tags);
 
-            document.MarkAsProcessing();
-            document.MarkAsActive();
+                document.MarkAsProcessing();
+                document.MarkAsActive();
 
-            await _documentRepo.AddAsync(document, cancellationToken);
+                await _documentRepo.AddAsync(document, cancellationToken);
+            }
         }
 
         return Result.Success(ToDto(document));

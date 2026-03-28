@@ -53,7 +53,10 @@ public sealed class AddDocumentVersionCommandHandler
         // 3. Generate version-specific storage path
         //    Format: {tenantId}/{year}/{month}/{documentId}/v{N}_{title}
         var versionNumber = document.Versions.Count + 1;
-        var fileName      = $"v{versionNumber}_{document.Title.Value}";
+        var fileName      = BuildVersionFileName(
+            document.Title.Value,
+            command.MimeType,
+            versionNumber);
         var storagePath   = StoragePath.Create(
             command.TenantId,
             command.DocumentId,
@@ -108,5 +111,28 @@ public sealed class AddDocumentVersionCommandHandler
             newVersion.CreatedAt,
             newVersion.ExtractedText,
             newVersion.PageCount));
+    }
+
+    private static string BuildVersionFileName(
+        string title,
+        string mimeType,
+        int versionNumber)
+    {
+        var safeTitle = title.Trim();
+        if (Path.HasExtension(safeTitle))
+            return $"v{versionNumber}_{safeTitle}";
+
+        var extension = mimeType.ToLowerInvariant() switch
+        {
+            "application/pdf" => ".pdf",
+            "text/plain" => ".txt",
+            "image/png" => ".png",
+            "image/jpeg" => ".jpg",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document" => ".docx",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" => ".xlsx",
+            _ => string.Empty
+        };
+
+        return $"v{versionNumber}_{safeTitle}{extension}";
     }
 }

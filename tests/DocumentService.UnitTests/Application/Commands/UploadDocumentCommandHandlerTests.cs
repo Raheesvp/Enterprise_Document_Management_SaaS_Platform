@@ -41,7 +41,7 @@ public class UploadDocumentCommandHandlerTests
         // Assert
         result.IsSuccess.Should().BeTrue();
         result.Value.Title.Should().Be("Invoice Q1.pdf");
-        result.Value.Status.Should().Be("Uploading");
+        result.Value.Status.Should().Be("Active");
         result.Value.VersionCount.Should().Be(1);
 
         // Verify storage was called exactly once
@@ -107,5 +107,64 @@ public class UploadDocumentCommandHandlerTests
             It.IsAny<Stream>(),
             It.IsAny<string>(),
             It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task Handle_DuplicateTitle_AddsNewVersion()
+    {
+        // Arrange
+        var tenantId = Guid.NewGuid();
+        var userId   = Guid.NewGuid();
+        var title    = "Existing Document";
+        
+        var existingDoc = Document.Create(
+            tenantId, userId, "Test User",
+            DocumentService.Domain.ValueObjects.DocumentTitle.Create(title),
+            DocumentService.Domain.ValueObjects.ContentType.Create("application/pdf"),
+            DocumentService.Domain.ValueObjects.StoragePath.Create(tenantId, Guid.NewGuid(), "v1_existing.pdf"),
+            DocumentService.Domain.ValueObjects.FileSize.FromBytes(1024));
+
+        existingDoc.MarkAsProcessing();
+        existingDoc.MarkAsActive();
+
+        _repo
+            .Setup(r => r.GetByTitleAsync(
+                title, tenantId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existingDoc);
+
+        _repo
+            .Setup(r => r.UpdateAsync(
+                It.IsAny<Document>(),
+                It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+
+        _storage
+            .Setup(s => s.UploadAsync(
+                It.IsAny<string>(),
+                It.IsAny<Stream>(),
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync("path/to/new/version.pdf");
+
+        var command = new UploadDocumentCommand(
+            TenantId:         tenantId,
+            UploadedByUserId: userId,
+            UploadedByName:   "Test User",
+            Title:            title,
+            MimeType:         "application/pdf",
+            FileSizeBytes:    2048,
+            FileContent:      new MemoryStream(new byte[100]));
+
+        // Act
+        var result = await CreateHandler().Handle(command, default);
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+        result.Value.VersionCount.Should().Be(2);
+        result.Value.CurrentVersionNumber.Should().Be(2);
+
+        _repo.Verify(r => r.GetByTitleAsync(title, tenantId, It.IsAny<CancellationToken>()), Times.Once);
+        _repo.Verify(r => r.UpdateAsync(existingDoc, It.IsAny<CancellationToken>()), Times.Once);
+        _repo.Verify(r => r.AddAsync(It.IsAny<Document>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 }

@@ -1,0 +1,24 @@
+﻿  Determining projects to restore...
+c:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\DocumentService.Application.csproj : warning NU1903: Package 'AutoMapper' 13.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-rvv3-g6hj-g44x [c:\Projects\ProjectSaaS\services\document-service\DocumentService.API\DocumentService.API.csproj]
+  Restored C:\Projects\ProjectSaaS\shared\Shared.Contracts\Shared.Contracts.csproj (in 1.98 sec).
+  Restored c:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\DocumentService.Application.csproj (in 1.98 sec).
+  Restored c:\Projects\ProjectSaaS\services\document-service\DocumentService.API\DocumentService.API.csproj (in 2.21 sec).
+  Restored C:\Projects\ProjectSaaS\services\document-service\DocumentService.Infrastructure\DocumentService.Infrastructure.csproj (in 2.2 sec).
+  3 of 7 projects are up-to-date for restore.
+c:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\DocumentService.Application.csproj : warning NU1903: Package 'AutoMapper' 13.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-rvv3-g6hj-g44x
+  Shared.Contracts -> c:\Projects\ProjectSaaS\shared\Shared.Contracts\bin\Debug\net8.0\Shared.Contracts.dll
+  Shared.Infrastructure -> C:\Projects\ProjectSaaS\shared\Shared.Infrastructure\bin\Debug\net8.0\Shared.Infrastructure.dll
+  Shared.Domain -> C:\Projects\ProjectSaaS\shared\Shared.Domain\bin\Debug\net8.0\Shared.Domain.dll
+  DocumentService.Domain -> c:\Projects\ProjectSaaS\services\document-service\DocumentService.Domain\bin\Debug\net8.0\DocumentService.Domain.dll
+  DocumentService.Application -> c:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\bin\Debug\net8.0\DocumentService.Application.dll
+c:\Projects\ProjectSaaS\services\document-service\DocumentService.Infrastructure\Messaging\DocumentVersionAddedEventHandler.cs(54,44): error CS1061: 'DocumentVersionAddedEvent' does not contain a definition for 'UploadedByUserId' and no accessible extension method 'UploadedByUserId' accepting a first argument of type 'DocumentVersionAddedEvent' could be found (are you missing a using directive or an assembly reference?) [c:\Projects\ProjectSaaS\services\document-service\DocumentService.Infrastructure\DocumentService.Infrastructure.csproj]
+
+Build FAILED.
+
+c:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\DocumentService.Application.csproj : warning NU1903: Package 'AutoMapper' 13.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-rvv3-g6hj-g44x [c:\Projects\ProjectSaaS\services\document-service\DocumentService.API\DocumentService.API.csproj]
+c:\Projects\ProjectSaaS\services\document-service\DocumentService.Application\DocumentService.Application.csproj : warning NU1903: Package 'AutoMapper' 13.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-rvv3-g6hj-g44x
+c:\Projects\ProjectSaaS\services\document-service\DocumentService.Infrastructure\Messaging\DocumentVersionAddedEventHandler.cs(54,44): error CS1061: 'DocumentVersionAddedEvent' does not contain a definition for 'UploadedByUserId' and no accessible extension method 'UploadedByUserId' accepting a first argument of type 'DocumentVersionAddedEvent' could be found (are you missing a using directive or an assembly reference?) [c:\Projects\ProjectSaaS\services\document-service\DocumentService.Infrastructure\DocumentService.Infrastructure.csproj]
+    2 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:28.24

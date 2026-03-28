@@ -11,6 +11,7 @@ export interface Document {
   createdAt:        string;
   updatedAt:        string;
   currentVersion : number;
+  downloadUrl?   : string;
 }
 
 export interface DocumentVersion {
@@ -20,6 +21,7 @@ export interface DocumentVersion {
   storagePath:      string;
   createdAt:        string;
   createdByUserId:  string;
+  downloadUrl?     : string;
 }
 
 export interface DocumentListResponse {
